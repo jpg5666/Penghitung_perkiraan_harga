@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kalkulator Biaya Tas Spunbond - Standar EZCO v3.0</title>
-    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -20,14 +19,16 @@
                     <p class="text-xs text-indigo-200">Berdasarkan Panduan Standar EZCO Makmur Perkasa Versi 3.0</p>
                 </div>
             </div>
-            <span class="text-xs bg-indigo-600 text-indigo-100 px-3 py-1 rounded-full font-medium">SOP Sales</span>
+            <a href="./admin.html" class="text-xs bg-indigo-600 hover:bg-indigo-800 text-white px-3 py-1.5 rounded-lg font-medium transition-all flex items-center gap-1.5">
+                <i class="fa-solid fa-user-gear"></i> Admin Panel
+            </a>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12">
             <!-- Form Input (Kiri) -->
             <div class="lg:col-span-7 p-6 md:p-8 space-y-6 border-b lg:border-b-0 lg:border-r border-slate-200">
                 
-                <!-- Warning/Notice Panel -->
+                <!-- Warning Panel -->
                 <div id="validation-warning" class="hidden bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
                     <div class="flex items-start">
                         <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 mr-3"></i>
@@ -102,7 +103,7 @@
                     </div>
                 </div>
 
-                <!-- Tali & Finishing -->
+                <!-- Tali -->
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                     <div class="flex items-center justify-between">
                         <label class="text-sm font-medium text-slate-700 flex items-center gap-2">
@@ -116,11 +117,11 @@
                     </div>
                 </div>
 
-                <!-- Metode Cetak & Spesifikasi -->
+                <!-- Metode Cetak & GSM -->
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Metode Cetak</label>
-                        <select id="metode_cetak" onchange="updateMetodeCetak()" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                        <select id="metode_cetak" onchange="hitung()" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
                             <option value="SABLON">Sablon (Screen)</option>
                             <option value="FLEXO">Flexo (Plat Polymer)</option>
                             <option value="ROTOGRAVURE">Rotogravure (Silinder)</option>
@@ -128,9 +129,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Ketebalan (GSM)</label>
-                        <select id="gsm" onchange="hitung()" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
-                            <!-- Populated dynamically -->
-                        </select>
+                        <select id="gsm" onchange="hitung()" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white"></select>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 mb-1">Jumlah Warna Cetak</label>
@@ -138,7 +137,7 @@
                     </div>
                 </div>
 
-                <!-- Order Details & Repeat Order -->
+                <!-- Order Details -->
                 <div class="grid grid-cols-2 gap-3 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
                     <div>
                         <label class="block text-xs font-medium text-indigo-900 mb-1">Jumlah Order (Pcs)</label>
@@ -151,32 +150,6 @@
                         </label>
                     </div>
                 </div>
-
-                <!-- Pengaturan Tarif Dasar (Sales / Production Rate Editor) -->
-                <details class="bg-amber-50/60 rounded-xl border border-amber-200 text-xs">
-                    <summary class="p-3 font-semibold text-amber-900 cursor-pointer flex justify-between items-center">
-                        <span><i class="fa-solid fa-pen-to-square text-amber-600 mr-1"></i> Pengaturan Tarif & Cost Master (Internal EZCO)</span>
-                        <i class="fa-solid fa-chevron-down text-amber-600"></i>
-                    </summary>
-                    <div class="p-4 border-t border-amber-200 grid grid-cols-2 gap-3 bg-white/50">
-                        <div>
-                            <label class="block font-medium text-amber-900 mb-1">Harga Spunbond / kg (Rp)</label>
-                            <input type="number" id="rate_kain" value="35000" step="1000" oninput="hitung()" class="w-full border border-amber-300 rounded-lg px-2 py-1.5 text-xs outline-none">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-amber-900 mb-1">Harga Tali / meter (Rp)</label>
-                            <input type="number" id="rate_tali" value="1000" step="100" oninput="hitung()" class="w-full border border-amber-300 rounded-lg px-2 py-1.5 text-xs outline-none">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-amber-900 mb-1">Biaya Silinder Rotogravure / Warna (Rp)</label>
-                            <input type="number" id="rate_silinder" value="2500000" step="100000" oninput="hitung()" class="w-full border border-amber-300 rounded-lg px-2 py-1.5 text-xs outline-none">
-                        </div>
-                        <div>
-                            <label class="block font-medium text-amber-900 mb-1">Biaya Screen / Plat per Warna (Rp)</label>
-                            <input type="number" id="rate_screen" value="150000" step="10000" oninput="hitung()" class="w-full border border-amber-300 rounded-lg px-2 py-1.5 text-xs outline-none">
-                        </div>
-                    </div>
-                </details>
             </div>
 
             <!-- Ringkasan Hasil (Kanan) -->
@@ -191,7 +164,7 @@
                             <span>Bahan Kain Spunbond</span>
                             <span class="font-semibold text-slate-800" id="res-biaya-kain">Rp0</span>
                         </div>
-                        <div class="flex justify-between text-slate-600" id="row-laminasi">
+                        <div class="flex justify-between text-slate-600">
                             <span>Bahan Film BOPP & Extrusion</span>
                             <span class="font-semibold text-slate-800" id="res-biaya-laminasi">Rp0</span>
                         </div>
@@ -209,25 +182,22 @@
                         </div>
                     </div>
 
-                    <!-- Total Unit HPP -->
                     <div class="mt-6 p-4 bg-indigo-50 border border-indigo-100 rounded-xl space-y-1">
                         <div class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">HPP Produksi Tas (per Pcs)</div>
                         <div class="text-3xl font-extrabold text-indigo-700" id="res-hpp">Rp0</div>
                         <div class="text-[11px] text-indigo-500">Belum termasuk margin & investasi media cetak</div>
                     </div>
 
-                    <!-- Media Printing Investment (Silinder / Screen Fee) -->
                     <div class="mt-4 p-4 bg-purple-50 border border-purple-100 rounded-xl">
                         <div class="flex justify-between items-center">
                             <div>
                                 <div class="text-xs font-semibold text-purple-700 uppercase tracking-wider">Biaya Media Cetak Awal</div>
-                                <div class="text-[11px] text-purple-600" id="res-media-label">0 Silinder Rotogravure</div>
+                                <div class="text-[11px] text-purple-600" id="res-media-label">0 Silinder</div>
                             </div>
                             <div class="text-lg font-bold text-purple-800" id="res-total-media">Rp0</div>
                         </div>
                     </div>
 
-                    <!-- Grand Total Project -->
                     <div class="mt-4 p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex justify-between items-center">
                         <div>
                             <div class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Total Nilai Order (HPP)</div>
@@ -245,21 +215,30 @@
         </div>
     </div>
 
-    <!-- Script Logika Kalkulasi & SOP EZCO -->
     <script>
         let currentModel = 'HBPA';
+
+        // Load rates from localStorage or use defaults
+        function getRates() {
+            const saved = localStorage.getItem('ezco_rates');
+            if (saved) return JSON.parse(saved);
+            return {
+                rateKain: 35000,
+                rateTali: 1000,
+                rateSilinder: 2500000,
+                rateScreen: 150000
+            };
+        }
 
         function updateJenisTas() {
             const jenisTas = document.querySelector('input[name="jenis_tas"]:checked').value;
             const selectGSM = document.getElementById('gsm');
             const selectMetode = document.getElementById('metode_cetak');
-            
-            // Highlight Selected Card
+
             document.getElementById('lbl-jenis-direct').className = `border rounded-lg p-3 cursor-pointer text-xs font-semibold flex flex-col justify-between ${jenisTas==='DIRECT'?'border-indigo-600 bg-indigo-50/30':'border-slate-200'}`;
             document.getElementById('lbl-jenis-lam1').className = `border rounded-lg p-3 cursor-pointer text-xs font-semibold flex flex-col justify-between ${jenisTas==='LAM1'?'border-indigo-600 bg-indigo-50/30':'border-slate-200'}`;
             document.getElementById('lbl-jenis-lam2').className = `border rounded-lg p-3 cursor-pointer text-xs font-semibold flex flex-col justify-between ${jenisTas==='LAM2'?'border-indigo-600 bg-indigo-50/30':'border-slate-200'}`;
 
-            // Populate GSM & Force Rules based on SOP PDF
             selectGSM.innerHTML = '';
             if (jenisTas === 'DIRECT') {
                 [60, 70, 75, 80, 100].forEach(g => selectGSM.add(new Option(`${g} GSM`, g, false, g===75)));
@@ -270,10 +249,9 @@
             } else if (jenisTas === 'LAM2') {
                 [110, 120, 130, 150].forEach(g => selectGSM.add(new Option(`${g} GSM (Thermal Bag)`, g, false, g===120)));
                 selectMetode.value = 'ROTOGRAVURE';
-                // SOP RULE: Laminasi 2 Sisi WAJIB Model HBPA
                 selectModel('HBPA');
             }
-            updateMetodeCetak();
+            hitung();
         }
 
         function selectModel(model) {
@@ -284,8 +262,6 @@
             }
 
             currentModel = model;
-            
-            // Update Tampilan Tombol Model
             document.querySelectorAll('.model-btn').forEach(btn => {
                 btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
                 btn.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
@@ -296,7 +272,6 @@
                 activeBtn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
             }
 
-            // Toggle visibilitas samping & tali
             const containerSamping = document.getElementById('container-lebar-samping');
             const chkTali = document.getElementById('pakai_tali');
 
@@ -308,10 +283,6 @@
                 chkTali.checked = true;
             }
             toggleTali();
-            hitung();
-        }
-
-        function updateMetodeCetak() {
             hitung();
         }
 
@@ -342,8 +313,8 @@
 
         function hitung() {
             hideWarning();
+            const rates = getRates();
 
-            // Inputs
             const jenisTas = document.querySelector('input[name="jenis_tas"]:checked').value;
             const panjang = parseFloat(document.getElementById('panjang').value) || 0;
             const tinggi = parseFloat(document.getElementById('tinggi').value) || 0;
@@ -356,13 +327,6 @@
             const isRepeat = document.getElementById('is_repeat_order').checked;
             const metodeCetak = document.getElementById('metode_cetak').value;
 
-            // Rates
-            const rateKain = parseFloat(document.getElementById('rate_kain').value) || 35000;
-            const rateTali = parseFloat(document.getElementById('rate_tali').value) || 1000;
-            const rateSilinder = parseFloat(document.getElementById('rate_silinder').value) || 2500000;
-            const rateScreen = parseFloat(document.getElementById('rate_screen').value) || 150000;
-
-            // SOP Machine Specs Check (Mesin HBPA)
             if (currentModel === 'HBPA') {
                 if (panjang < 12 || panjang > 55) showWarning('Mesin HBPA Batas Lebar Muka: 12 - 55 cm!');
                 else if (tinggi < 18 || tinggi > 45) showWarning('Mesin HBPA Batas Tinggi: 18 - 45 cm!');
@@ -370,7 +334,6 @@
                 else if (pakaiTali && (panjangTali < 35 || panjangTali > 60)) showWarning('Mesin HBPA Batas Panjang Tali: 35 - 60 cm!');
             }
 
-            // Calculation Dimensi Kain
             let lebarKain = 0, tinggiKain = 0, biayaJahit = 2000;
             if (currentModel === 'D-CUT' || currentModel === 'W-CUT') {
                 lebarKain = (2 * panjang) + 4.0;
@@ -386,40 +349,34 @@
                 biayaJahit = 1800;
             }
 
-            // 1. Luas & Biaya Bahan Kain
             const luasKainM2 = (lebarKain * tinggiKain) / 10000.0;
             const beratKainGram = luasKainM2 * gsm;
-            const biayaKain = (beratKainGram / 1000.0) * rateKain;
+            const biayaKain = (beratKainGram / 1000.0) * rates.rateKain;
 
-            // 2. Extra Cost Laminasi (Extrusion & BOPP Film)
             let biayaLaminasiPcs = 0;
-            if (jenisTas === 'LAM1') biayaLaminasiPcs = luasKainM2 * 1200; // BOPP Film Single
-            else if (jenisTas === 'LAM2') biayaLaminasiPcs = luasKainM2 * 2500; // BOPP + Aluminium Layer
+            if (jenisTas === 'LAM1') biayaLaminasiPcs = luasKainM2 * 1200;
+            else if (jenisTas === 'LAM2') biayaLaminasiPcs = luasKainM2 * 2500;
 
-            // 3. Biaya Tali
             let biayaTali = 0;
             if (pakaiTali && panjangTali > 0) {
-                biayaTali = ((2 * panjangTali) / 100.0) * rateTali;
+                biayaTali = ((2 * panjangTali) / 100.0) * rates.rateTali;
             }
 
-            // 4. Biaya Cetak Running per Pcs
             let biayaCetakPcs = 0;
             if (metodeCetak === 'ROTOGRAVURE') biayaCetakPcs = 300 * warnaCetak;
             else if (metodeCetak === 'SABLON') biayaCetakPcs = (jumlahOrder >= 1000 ? 600 : 1200) * warnaCetak;
             else if (metodeCetak === 'FLEXO') biayaCetakPcs = 400 * warnaCetak;
 
-            // 5. Total HPP Unit
             const hppUnit = biayaKain + biayaLaminasiPcs + biayaTali + biayaJahit + biayaCetakPcs;
 
-            // 6. Biaya Media Cetak Awal (One-time Initial Investment)
             let totalMediaFee = 0;
             let mediaLabel = '';
             if (!isRepeat) {
                 if (metodeCetak === 'ROTOGRAVURE') {
-                    totalMediaFee = warnaCetak * rateSilinder;
+                    totalMediaFee = warnaCetak * rates.rateSilinder;
                     mediaLabel = `${warnaCetak} Silinder Rotogravure`;
                 } else {
-                    totalMediaFee = warnaCetak * rateScreen;
+                    totalMediaFee = warnaCetak * rates.rateScreen;
                     mediaLabel = `${warnaCetak} Screen / Plat`;
                 }
             } else {
@@ -428,7 +385,6 @@
 
             const totalProject = (hppUnit * jumlahOrder) + totalMediaFee;
 
-            // Render Results
             document.getElementById('res-biaya-kain').innerText = formatRupiah(biayaKain);
             document.getElementById('res-biaya-laminasi').innerText = formatRupiah(biayaLaminasiPcs);
             document.getElementById('res-biaya-tali').innerText = formatRupiah(biayaTali);
@@ -443,7 +399,6 @@
             document.getElementById('res-luas-kain').innerText = luasKainM2.toFixed(4);
             document.getElementById('res-qty-label').innerText = jumlahOrder.toLocaleString('id-ID');
 
-            // Lead time estimation
             if (metodeCetak === 'ROTOGRAVURE' && !isRepeat) {
                 document.getElementById('res-leadtime').innerText = '2 - 4 Minggu (Pembuatan silinder ±2 minggu)';
             } else {
@@ -451,7 +406,6 @@
             }
         }
 
-        // Initialize
         updateJenisTas();
     </script>
 </body>
