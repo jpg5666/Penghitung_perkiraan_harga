@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Biaya Tas Custom</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+        <!-- Header -->
+        <div class="bg-indigo-600 px-6 py-4 text-white flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-bag-shopping text-2xl"></i>
+                <h1 class="text-xl font-bold">Kalkulator Biaya Tas Custom</h1>
+            </div>
+            <span class="text-xs bg-indigo-500 text-indigo-100 px-3 py-1 rounded-full font-medium">v1.1</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12">
+            <!-- Form Input (Kiri) -->
+            <div class="lg:col-span-7 p-6 md:p-8 space-y-6 border-b lg:border-b-0 lg:border-r border-slate-200">
+                <h2 class="text-lg font-semibold text-slate-700 border-b pb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-indigo-600"></i> Spesifikasi Tas
+                </h2>
+
+                <!-- Model Tas -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-2">Model Tas</label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <button type="button" onclick="selectModel('HBPA')" id="btn-HBPA" class="model-btn border rounded-lg p-2.5 text-center text-xs font-semibold hover:border-indigo-500 transition-all">
+                            HBPA<br><span class="text-[10px] text-slate-500 font-normal">Box + Tali</span>
+                        </button>
+                        <button type="button" onclick="selectModel('HLS')" id="btn-HLS" class="model-btn border rounded-lg p-2.5 text-center text-xs font-semibold hover:border-indigo-500 transition-all">
+                            HLS<br><span class="text-[10px] text-slate-500 font-normal">Lipat Samping</span>
+                        </button>
+                        <button type="button" onclick="selectModel('D-CUT')" id="btn-D-CUT" class="model-btn border rounded-lg p-2.5 text-center text-xs font-semibold hover:border-indigo-500 transition-all">
+                            D-Cut<br><span class="text-[10px] text-slate-500 font-normal">Plong D</span>
+                        </button>
+                        <button type="button" onclick="selectModel('W-CUT')" id="btn-W-CUT" class="model-btn border rounded-lg p-2.5 text-center text-xs font-semibold hover:border-indigo-500 transition-all">
+                            W-Cut<br><span class="text-[10px] text-slate-500 font-normal">Kresek</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dimensi -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Panjang (cm)</label>
+                        <input type="number" id="panjang" value="30" oninput="hitung()" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Tinggi (cm)</label>
+                        <input type="number" id="tinggi" value="40" oninput="hitung()" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div id="container-lebar-samping">
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Lebar Samping (cm)</label>
+                        <input type="number" id="lebar_samping" value="8.5" oninput="hitung()" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- Opsi Tali -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-sm font-medium text-slate-700 flex items-center gap-2">
+                            <i class="fa-solid fa-ribbon text-indigo-500"></i> Gunakan Tali Pegangan
+                        </label>
+                        <input type="checkbox" id="pakai_tali" checked onchange="toggleTali()" class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
+                    </div>
+                    <div id="container-panjang-tali">
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Panjang Tali per Pegangan (cm)</label>
+                        <input type="number" id="panjang_tali" value="50" oninput="hitung()" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                    </div>
+                </div>
+
+                <!-- Spesifikasi Tambahan -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Ketebalan (GSM)</label>
+                        <select id="gsm" onchange="hitung()" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white">
+                            <option value="75">75 GSM</option>
+                            <option value="100">100 GSM</option>
+                            <option value="120" selected>120 GSM</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Jumlah Warna Sablon</label>
+                        <input type="number" id="warna_sablon" value="1" min="0" oninput="hitung()" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 mb-1">Jumlah Order (Pcs)</label>
+                        <input type="number" id="jumlah_order" value="1000" oninput="hitung()" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- Bagian Pengaturan Tarif / Biaya Dasar (Bisa Diubah Bebas) -->
+                <h2 class="text-lg font-semibold text-slate-700 border-b pb-2 pt-2 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-indigo-600"></i> Pengaturan Harga & Tarif Dasar
+                </h2>
+
+                <div class="grid grid-cols-2 gap-3 bg-amber-50/60 p-4 rounded-xl border border-amber-200">
+                    <div>
+                        <label class="block text-xs font-medium text-amber-900 mb-1">Harga Kain / kg (Rp)</label>
+                        <input type="number" id="rate_kain" value="35000" step="1000" oninput="hitung()" class="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-amber-900 mb-1">Harga Tali / meter (Rp)</label>
+                        <input type="number" id="rate_tali" value="1000" step="100" oninput="hitung()" class="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-amber-900 mb-1">Biaya Jahit per Tas (Rp)</label>
+                        <input type="number" id="rate_jahit" value="2500" step="100" oninput="hitung()" class="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-amber-900 mb-1">Biaya Sablon / Warna (Rp)</label>
+                        <input type="number" id="rate_sablon" value="800" step="100" oninput="hitung()" class="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none bg-white">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ringkasan Hasil (Kanan) -->
+            <div class="lg:col-span-5 bg-slate-50 p-6 md:p-8 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-slate-700 border-b pb-2 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-indigo-600"></i> Rincian HPP (Modal) per Tas
+                    </h2>
+
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between text-slate-600">
+                            <span>Bahan Kain Spunbond</span>
+                            <span class="font-semibold text-slate-800" id="res-biaya-kain">Rp0</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>Tali Pegangan</span>
+                            <span class="font-semibold text-slate-800" id="res-biaya-tali">Rp0</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>Jahit & Finishing</span>
+                            <span class="font-semibold text-slate-800" id="res-biaya-jahit">Rp0</span>
+                        </div>
+                        <div class="flex justify-between text-slate-600">
+                            <span>Sablon</span>
+                            <span class="font-semibold text-slate-800" id="res-biaya-sablon">Rp0</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 p-5 bg-indigo-50 border border-indigo-100 rounded-xl space-y-2">
+                        <div class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">HPP / Biaya per Unit</div>
+                        <div class="text-3xl font-extrabold text-indigo-700" id="res-hpp">Rp0</div>
+                        <div class="text-xs text-indigo-500">Estimasi total biaya modal per pcs</div>
+                    </div>
+
+                    <div class="mt-4 p-5 bg-emerald-50 border border-emerald-100 rounded-xl flex justify-between items-center">
+                        <div>
+                            <div class="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Total Biaya Production</div>
+                            <div class="text-xs text-emerald-600">Jumlah order: <span id="res-qty-label" class="font-bold">1000</span> pcs</div>
+                        </div>
+                        <div class="text-xl font-bold text-emerald-800" id="res-total-project">Rp0</div>
+                    </div>
+                </div>
+
+                <div class="mt-6 text-xs text-slate-400 text-center border-t pt-4">
+                    Luas Kain Terpakai: <span id="res-luas-kain" class="font-semibold">0</span> m² / pcs
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logika Kalkulasi -->
+    <script>
+        let currentModel = 'HBPA';
+
+        function selectModel(model) {
+            currentModel = model;
+            
+            // Update Tampilan Tombol Model
+            document.querySelectorAll('.model-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600');
+                btn.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+            });
+            const activeBtn = document.getElementById(`btn-${model}`);
+            activeBtn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+            activeBtn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600');
+
+            // Toggle visibilitas lebar samping & tali sesuai model
+            const containerSamping = document.getElementById('container-lebar-samping');
+            const chkTali = document.getElementById('pakai_tali');
+            const inputJahit = document.getElementById('rate_jahit');
+
+            if (model === 'D-CUT' || model === 'W-CUT') {
+                containerSamping.classList.add('opacity-40', 'pointer-events-none');
+                chkTali.checked = false;
+                inputJahit.value = 1500; // Tarif jahit default otomatis D-Cut/W-Cut
+            } else {
+                containerSamping.classList.remove('opacity-40', 'pointer-events-none');
+                chkTali.checked = true;
+                inputJahit.value = model === 'HBPA' ? 2500 : 2000;
+            }
+            toggleTali();
+            hitung();
+        }
+
+        function toggleTali() {
+            const chkTali = document.getElementById('pakai_tali');
+            const containerPanjangTali = document.getElementById('container-panjang-tali');
+            if (chkTali.checked) {
+                containerPanjangTali.classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                containerPanjangTali.classList.add('opacity-40', 'pointer-events-none');
+            }
+            hitung();
+        }
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+        }
+
+        function hitung() {
+            // Input Dimensi & Spesifikasi
+            const panjang = parseFloat(document.getElementById('panjang').value) || 0;
+            const tinggi = parseFloat(document.getElementById('tinggi').value) || 0;
+            const lebarSamping = parseFloat(document.getElementById('lebar_samping').value) || 0;
+            const pakaiTali = document.getElementById('pakai_tali').checked;
+            const panjangTali = pakaiTali ? (parseFloat(document.getElementById('panjang_tali').value) || 0) : 0;
+            const gsm = parseInt(document.getElementById('gsm').value);
+            const warnaSablon = parseInt(document.getElementById('warna_sablon').value) || 0;
+            const jumlahOrder = parseInt(document.getElementById('jumlah_order').value) || 1;
+
+            // Input Custom Rate / Harga Dasar
+            const rateKain = parseFloat(document.getElementById('rate_kain').value) || 0;
+            const rateTali = parseFloat(document.getElementById('rate_tali').value) || 0;
+            const rateJahit = parseFloat(document.getElementById('rate_jahit').value) || 0;
+            const rateSablon = parseFloat(document.getElementById('rate_sablon').value) || 0;
+
+            let lebarKain = 0;
+            let tinggiKain = 0;
+
+            // Formulasi Ukuran Kain Berdasarkan Model
+            if (currentModel === 'D-CUT' || currentModel === 'W-CUT') {
+                lebarKain = (2 * panjang) + 4.0;
+                tinggiKain = tinggi + 5.0;
+            } else if (currentModel === 'HBPA') {
+                lebarKain = (2 * panjang) + lebarSamping + 5.0;
+                tinggiKain = tinggi + lebarSamping + 5.0;
+            } else if (currentModel === 'HLS') {
+                lebarKain = (2 * panjang) + (2 * lebarSamping) + 4.0;
+                tinggiKain = tinggi + 5.0;
+            }
+
+            // 1. Luas Kain (m2) & Biaya Bahan
+            const luasKainM2 = (lebarKain * tinggiKain) / 10000.0;
+            const beratKainGram = luasKainM2 * gsm;
+            const biayaKain = (beratKainGram / 1000.0) * rateKain;
+
+            // 2. Biaya Tali
+            let biayaTali = 0;
+            if (pakaiTali && panjangTali > 0) {
+                const totalPanjangTaliM = (2 * panjangTali) / 100.0;
+                biayaTali = totalPanjangTaliM * rateTali;
+            }
+
+            // 3. Biaya Jahit & Sablon
+            const biayaJahit = rateJahit;
+            const biayaSablonUnit = warnaSablon * rateSablon;
+
+            // 4. Total HPP
+            const hpp = biayaKain + biayaTali + biayaJahit + biayaSablonUnit;
+            const totalProject = hpp * jumlahOrder;
+
+            // Render Hasil ke UI
+            document.getElementById('res-biaya-kain').innerText = formatRupiah(biayaKain);
+            document.getElementById('res-biaya-tali').innerText = formatRupiah(biayaTali);
+            document.getElementById('res-biaya-jahit').innerText = formatRupiah(biayaJahit);
+            document.getElementById('res-biaya-sablon').innerText = formatRupiah(biayaSablonUnit);
+            document.getElementById('res-hpp').innerText = formatRupiah(hpp);
+            document.getElementById('res-total-project').innerText = formatRupiah(totalProject);
+            document.getElementById('res-luas-kain').innerText = luasKainM2.toFixed(4);
+            document.getElementById('res-qty-label').innerText = jumlahOrder;
+        }
+
+        // Inisialisasi awal
+        selectModel('HBPA');
+    </script>
+</body>
+</html>
