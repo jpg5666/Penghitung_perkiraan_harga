@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog & Kalkulator Blueprint Tas Spunbond</title>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-hover: #0369a1;
+            --bg-canvas: #f0f9ff;
+            --line-color: #0f172a;
+            --text-color: #334155;
+            --border-color: #cbd5e1;
+            --thermal-accent: #ca8a04;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: var(--text-color);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .main-wrapper {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* NAVBAR / TAB SWITCHER */
+        .nav-tabs {
+            display: flex;
+            gap: 12px;
+            background: #ffffff;
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* SECTION VIEWS */
+        .section-view {
+            display: none;
+        }
+        .section-view.active {
+            display: block;
+        }
+
+        /* ================= KATALOG STYLES ================= */
+        .catalog-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .catalog-card {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+            transition: transform 0.2s;
+        }
+
+        .catalog-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+        }
+
+        .catalog-img-box {
+            width: 100%;
+            height: 220px;
+            background: #f1f5f9;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .catalog-img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .img-placeholder-text {
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .catalog-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .catalog-desc {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+        .color-picker-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .color-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .swatches {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            max-height: 80px;
+            overflow-y: auto;
+            padding: 4px 0;
+        }
+
+        .swatch {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            cursor: pointer;
+            transition: transform 0.1s, border-color 0.1s;
+            position: relative;
+        }
+
+        .swatch:hover, .swatch.active {
+            transform: scale(1.15);
+            border-color: #0f172a;
+            box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+        }
+
+        /* ================= CUSTOM CALCULATOR STYLES ================= */
+        .app-container {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            overflow: hidden;
+        }
+
+        .form-panel {
+            padding: 32px 24px;
+            border-right: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: #ffffff;
+        }
+
+        .form-panel h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+        }
+
+        select:focus, input[type="number"]:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        .grid-dimensions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .grid-dimensions.thermal-active {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .input-hint {
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+        .btn-submit {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .preview-panel {
+            background-color: var(--bg-canvas);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .view-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            background: #ffffff;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            gap: 4px;
+        }
+
+        .view-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 480px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            max-width: 520px;
+            max-height: 460px;
+        }
+
+        @media print {
+            body { background-color: #ffffff; padding: 0; }
+            .main-wrapper > .nav-tabs, .preview-panel, .form-panel select, .form-panel input, .btn-submit { display: none !important; }
+            .app-container { box-shadow: none; border: none; display: block; }
+            .form-panel { border: none; padding: 0; width: 100%; }
+            .print-receipt-box { display: block !important; border: 2px solid #0f172a; padding: 20px; border-radius: 8px; margin-top: 20px; }
+        }
+
+        .print-receipt-box { display: none; }
+
+        @media (max-width: 850px) {
+            .app-container { grid-template-columns: 1fr; }
+            .form-panel { border-right: none; border-bottom: 1px solid #e2e8f0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <!-- NAVBAR TAB -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" id="btn-tab-katalog" onclick="switchTab('katalog')">Katalog Produk Jadi & Warna</button>
+        <button class="tab-btn" id="btn-tab-custom" onclick="switchTab('custom')">Kalkulator & Blueprint Custom</button>
+    </div>
+
+    <!-- VIEW 1: KATALOG PRODUK & PILIH WARNA KAIN -->
+    <div class="section-view active" id="view-katalog">
+        <div style="margin-bottom: 16px;">
+            <h2 style="font-size: 22px; color: #0f172a; font-weight: 800;">Katalog Model Tas & Pilihan Warna Kain Jinly</h2>
+            <p style="font-size: 13px; color: #64748b;">Masukkan foto produk asli pada placeholder dan pilih variasi warna kain spunbond sesuai standar palet warna internet.</p>
+        </div>
+        <div class="catalog-container" id="catalog-grid">
+            <!-- Render via JavaScript -->
+        </div>
+    </div>
+
+    <!-- VIEW 2: CUSTOM CALCULATOR & BLUEPRINT -->
+    <div class="section-view" id="view-custom">
+        <div class="app-container">
+            <div class="form-panel">
+                <h2>Custom Ukuran Tas</h2>
+
+                <div class="form-group">
+                    <label for="model">Model Tas</label>
+                    <select id="model" onchange="handleModelChange()">
+                        <option value="hbpa">HBPA (Box Automatic 3D)</option>
+                        <option value="thermal">Thermal Box / Insulasi (Chagee Style)</option>
+                        <option value="hls">HLS (Handle Lipat Samping)</option>
+                        <option value="dcut">D-Cut (Plong Flat / Tanpa Gusset)</option>
+                        <option value="wcut">W-Cut (Model Kresek / V-Fold Side)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Dimensi Tas (cm)</label>
+                    <div class="grid-dimensions" id="grid-dim">
+                        <div>
+                            <label style="font-size: 11px;">Panjang (P)</label>
+                            <input type="number" id="panjang" value="25" min="10" max="100" 
+                                   onkeydown="preventNegative(event)" 
+                                   oninput="processUpdate()" 
+                                   onblur="validateOnBlur('panjang', 25, 10, 100)">
+                        </div>
+                        <div>
+                            <label style="font-size: 11px;">Tinggi (T)</label>
+                            <input type="number" id="tinggi" value="35" min="10" max="100" 
+                                   onkeydown="preventNegative(event)" 
+                                   oninput="processUpdate()" 
+                                   onblur="validateOnBlur('tinggi', 35, 10, 100)">
+                        </div>
+                        <div>
+                            <label style="font-size: 11px;">Lebar (L)</label>
+                            <input type="number" id="lebar" value="12" min="0" max="50" 
+                                   onkeydown="preventNegative(event)" 
+                                   oninput="processUpdate()" 
+                                   onblur="validateOnBlur('lebar', 12, 0, 50)">
+                        </div>
+                        <div id="wrapper-flap" style="display: none;">
+                            <label style="font-size: 11px; color: var(--thermal-accent); font-weight:700;">Penutup (+T)</label>
+                            <input type="number" id="flap" value="5" min="1" max="25" 
+                                   style="border-color: var(--thermal-accent); background-color: #fefce8;"
+                                   onkeydown="preventNegative(event)" 
+                                   oninput="processUpdate()" 
+                                   onblur="validateOnBlur('flap', 5, 1, 25)">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="group-tali">
+                    <label for="tali">Panjang Tali / Handle (cm)</label>
+                    <input type="number" id="tali" value="50" min="20" max="120" 
+                           onkeydown="preventNegative(event)" 
+                           oninput="processUpdate()" 
+                           onblur="validateOnBlur('tali', 50, 20, 120)">
+                    <span class="input-hint">*Panjang total loop tali jinjing (standar 50 cm).</span>
+                </div>
+
+                <button class="btn-submit" onclick="printReceipt()">Cetak / Simpan Struk Konfigurasi</button>
+
+                <div class="print-receipt-box" id="receipt-box">
+                    <h3 style="margin-bottom: 10px; border-bottom: 1px solid #0f172a; padding-bottom: 5px;">STRUK SPESIFIKASI TAS</h3>
+                    <p><strong>Model Tas:</strong> <span id="r-model">HBPA</span></p>
+                    <p><strong>Panjang (P):</strong> <span id="r-p">25</span> cm</p>
+                    <p><strong>Tinggi (T):</strong> <span id="r-t">35</span> cm</p>
+                    <p><strong>Lebar / Gusset (L):</strong> <span id="r-l">12</span> cm</p>
+                    <p id="r-flap-row" style="display:none;"><strong>Tinggi Penutup (+T):</strong> <span id="r-flap">5</span> cm</p>
+                    <p id="r-tali-row"><strong>Panjang Tali:</strong> <span id="r-tali">50</span> cm</p>
+                    <p style="margin-top: 15px; font-size: 11px; color: #64748b;">Dicetak dari Kalkulator Manufaktur Tas Presisi</p>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="view-toggle">
+                    <button class="view-btn active" id="btn-3d" onclick="setViewMode('3d')">Sketsa 3D Realistis</button>
+                    <button class="view-btn" id="btn-2d" onclick="setViewMode('2d')">Tampak Depan (2D)</button>
+                </div>
+
+                <div class="canvas-container">
+                    <svg id="svg-canvas" viewBox="0 0 500 450" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f172a"/>
+                            </marker>
+                            <marker id="arrow-red" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#e11d48"/>
+                            </marker>
+                            <marker id="arrow-yellow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#ca8a04"/>
+                            </marker>
+                            <marker id="arrow-blue" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                <path d="M 0 0 L 10 5 L 0 10 z" fill="#0284c7"/>
+                            </marker>
+                        </defs>
+                        <g id="drawing-layer"></g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ================= DATA KATALOG & PALET WARNA REALISTIS =================
+    const catalogData = [
+        { id: 'hbpa', title: 'HBPA (Box Automatic 3D)', desc: 'Tas box tegak dengan alas dan samping penuh.' },
+        { id: 'thermal', title: 'Thermal Box (Chagee Style)', desc: 'Tas insulasi dingin lengkap dengan flap penutup atas.' },
+        { id: 'hls', title: 'HLS (Handle Lipat Samping)', desc: 'Tas lipat samping dengan dasar jahit menyatu.' },
+        { id: 'dcut', title: 'D-Cut (Plong Flat)', desc: 'Tas kantong datar tanpa lipatan samping.' },
+        { id: 'wcut', title: 'W-Cut (Model Kresek)', desc: 'Tas model kresek V-fold dengan pegangan menyatu.' }
+    ];
+
+    // Warna disesuaikan akurat dengan standar palet web spunbond agar tidak keliru/terlalu gelap (tidak menyerupai hitam)
+    const jinlyColors = [
+        { code: 'PT', name: 'Putih', hex: '#ffffff' },
+        { code: 'CR', name: 'Cream', hex: '#fdf6e2' },
+        { code: 'KG', name: 'Kuning', hex: '#ffd700' },
+        { code: 'OR', name: 'Orange', hex: '#ff7f00' },
+        { code: 'MT', name: 'Merah Tua', hex: '#cc0000' },
+        { code: 'PF', name: 'Pink Fanta', hex: '#ff1493' },
+        { code: 'LP', name: 'Light Pink', hex: '#ffb6c1' },
+        { code: 'UG', name: 'Ungu', hex: '#8a2be2' },
+        { code: 'BN', name: 'Biru Navy', hex: '#000080' },
+        { code: 'BP', name: 'Biru Persib', hex: '#1e90ff' },
+        { code: 'BL', name: 'Biru Langit', hex: '#87ceeb' },
+        { code: 'TG', name: 'Tosca', hex: '#008b8b' },
+        { code: 'HS', name: 'Hijau Sedang', hex: '#228b22' },
+        { code: 'SG', name: 'Hijau Stabilo', hex: '#adff2f' },
+        { code: 'BHD', name: 'Bottle Dark Green', hex: '#004d40' },
+        { code: 'CM', name: 'Coklat Moka', hex: '#b8860b' },
+        { code: 'AT', name: 'Abu Tua', hex: '#708090' },
+        { code: 'CT', name: 'Coklat Tua', hex: '#5c4033' },
+        { code: 'HT', name: 'Hitam', hex: '#111111' },
+        { code: 'MR', name: 'Maroon', hex: '#800000' }
+    ];
+
+    function initCatalog() {
+        const grid = document.getElementById('catalog-grid');
+        grid.innerHTML = '';
+
+        catalogData.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'catalog-card';
+
+            card.innerHTML = `
+                <div class="catalog-img-box" id="box-${item.id}">
+                    <img id="img-${item.id}" src="placeholder-model-${index + 1}.jpg" alt="${item.title}" 
+                         onerror="this.style.display='none'; document.getElementById('fallback-${item.id}').style.display='block';">
+                    <div id="fallback-${item.id}" class="img-placeholder-text" style="display:none;">
+                        <b>[ Tempat Foto ${item.title} ]</b><br>
+                        <span style="font-size:10px;">Ganti src pada tag &lt;img&gt; dengan file gambar Anda</span>
+                    </div>
+                </div>
+                <div class="catalog-title">${item.title}</div>
+                <div class="catalog-desc">${item.desc}</div>
+                <div class="color-picker-group">
+                    <div class="color-label-row">
+                        <span>Pilih Warna Kain:</span>
+                        <span id="selected-color-name-${item.id}" style="font-weight:700; color:var(--primary);">Putih (PT)</span>
+                    </div>
+                    <div class="swatches" id="swatches-${item.id}">
+                        ${jinlyColors.map((c, idx) => `
+                            <div class="swatch ${idx === 0 ? 'active' : ''}" 
+                                 style="background-color: ${c.hex};" 
+                                 title="${c.name} (${c.code})"
+                                 onclick="selectCatalogColor('${item.id}', '${c.name} (${c.code})', this)"></div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    function selectCatalogColor(modelId, colorLabel, swatchEl) {
+        const parentSwatches = swatchEl.parentElement;
+        parentSwatches.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+        swatchEl.classList.add('active');
+
+        document.getElementById(`selected-color-name-${modelId}`).innerText = colorLabel;
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.section-view').forEach(view => view.classList.remove('active'));
+
+        if (tabName === 'katalog') {
+            document.getElementById('btn-tab-katalog').classList.add('active');
+            document.getElementById('view-katalog').classList.add('active');
+        } else {
+            document.getElementById('btn-tab-custom').classList.add('active');
+            document.getElementById('view-custom').classList.add('active');
+            processUpdate();
+        }
+    }
+
+    // ================= CUSTOM CALCULATOR LOGIC =================
+    let currentViewMode = '3d';
+
+    function preventNegative(e) {
+        if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
+    }
+
+    function validateOnBlur(elementId, defaultValue, minVal, maxVal) {
+        const input = document.getElementById(elementId);
+        let val = parseFloat(input.value);
+
+        if (isNaN(val) || input.value.trim() === '') {
+            input.value = defaultValue;
+        } else if (val < minVal) {
+            input.value = minVal;
+        } else if (val > maxVal) {
+            input.value = maxVal;
+        }
+        processUpdate();
+    }
+
+    function getValueForRender(elementId, fallback) {
+        const val = parseFloat(document.getElementById(elementId).value);
+        return isNaN(val) ? fallback : Math.max(0, val);
+    }
+
+    function handleModelChange() {
+        const model = document.getElementById('model').value;
+        const lebarInput = document.getElementById('lebar');
+        const wrapperFlap = document.getElementById('wrapper-flap');
+        const gridDim = document.getElementById('grid-dim');
+        const groupTali = document.getElementById('group-tali');
+        const taliInput = document.getElementById('tali');
+
+        if (model === 'thermal') {
+            wrapperFlap.style.display = 'block';
+            gridDim.classList.add('thermal-active');
+            lebarInput.disabled = false;
+            if (parseFloat(lebarInput.value) === 0 || lebarInput.value === '') lebarInput.value = 12;
+        } else {
+            wrapperFlap.style.display = 'none';
+            gridDim.classList.remove('thermal-active');
+
+            if (model === 'dcut') {
+                lebarInput.value = 0;
+                lebarInput.disabled = true;
+            } else {
+                lebarInput.disabled = false;
+                if (parseFloat(lebarInput.value) === 0 || lebarInput.value === '') lebarInput.value = 12;
+            }
+        }
+
+        if (model === 'dcut') {
+            groupTali.style.display = 'none';
+        } else {
+            groupTali.style.display = 'flex';
+            if (parseFloat(taliInput.value) === 0 || taliInput.value === '') taliInput.value = 50;
+        }
+
+        processUpdate();
+    }
+
+    function setViewMode(mode) {
+        currentViewMode = mode;
+        document.getElementById('btn-3d').classList.toggle('active', mode === '3d');
+        document.getElementById('btn-2d').classList.toggle('active', mode === '2d');
+        processUpdate();
+    }
+
+    function processUpdate() {
+        const modelSelect = document.getElementById('model');
+        const model = modelSelect.value;
+        const P = getValueForRender('panjang', 25);
+        const T = getValueForRender('tinggi', 35);
+        const L = (model === 'dcut') ? 0 : getValueForRender('lebar', 12);
+        const Flap = (model === 'thermal') ? getValueForRender('flap', 5) : 0;
+        const Tali = (model === 'dcut') ? 0 : getValueForRender('tali', 50);
+
+        document.getElementById('r-model').innerText = modelSelect.options[modelSelect.selectedIndex].text;
+        document.getElementById('r-p').innerText = P;
+        document.getElementById('r-t').innerText = T;
+        document.getElementById('r-l').innerText = L;
+        document.getElementById('r-tali').innerText = Tali;
+
+        const flapRow = document.getElementById('r-flap-row');
+        if (model === 'thermal') {
+            flapRow.style.display = 'block';
+            document.getElementById('r-flap').innerText = Flap;
+        } else {
+            flapRow.style.display = 'none';
+        }
+
+        document.getElementById('r-tali-row').style.display = (model === 'dcut') ? 'none' : 'block';
+
+        renderSVGBlueprint(P, T, L, Flap, Tali, model, currentViewMode);
+    }
+
+    function printReceipt() {
+        window.print();
+    }
+
+    function renderSVGBlueprint(P, T, L, FlapVal, TaliVal, model, mode) {
+        const layer = document.getElementById('drawing-layer');
+        layer.innerHTML = '';
+
+        const centerX = 230;
+        const centerY = 245;
+
+        const totalTinggiProp = T + FlapVal;
+        const maxDimension = Math.max(P, totalTinggiProp, L, 10);
+        const scale = Math.min(180 / maxDimension, 4.2);
+
+        const w = P * scale;
+        const h = T * scale;
+        const d = L * scale;
+        const flapH = FlapVal * scale;
+
+        if (mode === '3d') {
+            const angle = 0.45; 
+            const dx = Math.cos(angle) * d * 0.7;
+            const dy = Math.sin(angle) * d * 0.7;
+
+            const x0 = centerX - (w / 2) + (dx / 2);
+            const y0 = centerY + (h / 2) - 15;
+
+            if (model === 'hls') {
+                const pFront = [
+                    {x: x0, y: y0},
+                    {x: x0 + w, y: y0},
+                    {x: x0 + w, y: y0 - h},
+                    {x: x0, y: y0 - h}
+                ];
+                const pSideTop = {x: x0 - dx, y: y0 - h - dy};
+
+                drawLine(layer, pSideTop.x, pSideTop.y, pSideTop.x + w, pSideTop.y, '#cbd5e1', 1.5, "4,4");
+                drawLine(layer, pSideTop.x + w, pSideTop.y, pFront[1].x, pFront[1].y, '#cbd5e1', 1.5, "4,4");
+                drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pFront[1].x},${pFront[1].y} ${pFront[2].x},${pFront[2].y} ${pFront[3].x},${pFront[3].y}`, 'rgba(255,255,255,0.95)', '#0f172a', 2);
+
+                if (L > 0) {
+                    drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pSideTop.x},${pSideTop.y} ${pFront[3].x},${pFront[3].y}`, 'rgba(248,250,252,0.88)', '#0f172a', 2);
+                    drawLine(layer, pFront[0].x, pFront[0].y, (pFront[3].x + pSideTop.x) / 2, pFront[3].y - (dy / 2), '#64748b', 1.5, "4,4");
+                }
+
+                drawHandles(layer, pFront, {x: pSideTop.x, y: pSideTop.y}, model, scale, L, true, 0, TaliVal);
+                drawLine(layer, pFront[0].x, pFront[0].y - 4, pFront[1].x, pFront[1].y - 4, '#64748b', 1.5, "3,3");
+
+                drawDimensionArrow(layer, pFront[0].x, pFront[0].y + 18, pFront[1].x, pFront[1].y + 18, `${P} cm`, 'bottom');
+                drawDimensionArrow(layer, pFront[1].x + 18, pFront[1].y, pFront[2].x + 18, pFront[2].y, `${T} cm`, 'right');
+                if (L > 0) {
+                    drawDimensionArrow(layer, pSideTop.x - 20, pSideTop.y, pFront[3].x - 20, pFront[3].y, `${L} cm`, 'left');
+                }
+
+            } else if (model === 'thermal') {
+                const pFront = [
+                    {x: x0, y: y0},
+                    {x: x0 + w, y: y0},
+                    {x: x0 + w, y: y0 - h},
+                    {x: x0, y: y0 - h}
+                ];
+                const pSide = [
+                    {x: x0 - dx, y: y0 - dy},
+                    {x: x0 - dx, y: y0 - h - dy}
+                ];
+                const pBackRight = {x: x0 + w - dx, y: y0 - dy};
+                const pBackRightTop = {x: x0 + w - dx, y: y0 - h - dy};
+
+                drawLine(layer, pSide[0].x, pSide[0].y, pBackRight.x, pBackRight.y, '#94a3b8', 1.5, "4,4");
+                drawLine(layer, pBackRight.x, pBackRight.y, pFront[1].x, pFront[1].y, '#94a3b8', 1.5, "4,4");
+                drawLine(layer, pBackRight.x, pBackRight.y, pBackRightTop.x, pBackRightTop.y, '#94a3b8', 1.5, "4,4");
+
+                drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pFront[1].x},${pFront[1].y} ${pFront[2].x},${pFront[2].y} ${pFront[3].x},${pFront[3].y}`, 'rgba(255,255,255,0.95)', '#0f172a', 2);
+                
+                if (L > 0) {
+                    drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pSide[0].x},${pSide[0].y} ${pSide[1].x},${pSide[1].y} ${pFront[3].x},${pFront[3].y}`, 'rgba(248,250,252,0.88)', '#0f172a', 2);
+                }
+
+                const flapFront = [
+                    {x: pFront[3].x, y: pFront[3].y},
+                    {x: pFront[2].x, y: pFront[2].y},
+                    {x: pFront[2].x, y: pFront[2].y - flapH},
+                    {x: pFront[3].x, y: pFront[3].y - flapH}
+                ];
+                drawPolygon(layer, `${flapFront[0].x},${flapFront[0].y} ${flapFront[1].x},${flapFront[1].y} ${flapFront[2].x},${flapFront[2].y} ${flapFront[3].x},${flapFront[3].y}`, '#fef08a', '#ca8a04', 2);
+                drawLine(layer, flapFront[0].x, flapFront[0].y, flapFront[1].x, flapFront[1].y, '#ca8a04', 2, "4,2");
+
+                drawHandles(layer, pFront, pSide, model, scale, L, true, flapH, TaliVal);
+
+                drawDimensionArrow(layer, pFront[0].x, pFront[0].y + 18, pFront[1].x, pFront[1].y + 18, `${P} cm`, 'bottom');
+                drawDimensionArrow(layer, pFront[1].x + 18, pFront[1].y, pFront[2].x + 18, pFront[2].y, `${T} cm`, 'right');
+                drawDimensionArrow(layer, pFront[2].x + 18, pFront[2].y, pFront[2].x + 18, pFront[2].y - flapH, `+${FlapVal} cm`, 'right', '#ca8a04', 'arrow-yellow');
+
+                if (L > 0) {
+                    drawDimensionArrow(layer, pSide[0].x - 20, pSide[0].y + 8, pFront[0].x - 20, pFront[0].y + 8, `${L} cm`, 'left');
+                }
+
+            } else {
+                const pFront = [
+                    {x: x0, y: y0},
+                    {x: x0 + w, y: y0},
+                    {x: x0 + w, y: y0 - h},
+                    {x: x0, y: y0 - h}
+                ];
+                const pSide = [
+                    {x: x0 - dx, y: y0 - dy},
+                    {x: x0 - dx, y: y0 - h - dy}
+                ];
+                const pBackRight = {x: x0 + w - dx, y: y0 - dy};
+                const pBackRightTop = {x: x0 + w - dx, y: y0 - h - dy};
+
+                if (L > 0) {
+                    drawLine(layer, pSide[0].x, pSide[0].y, pBackRight.x, pBackRight.y, '#94a3b8', 1.5, "4,4");
+                    drawLine(layer, pBackRight.x, pBackRight.y, pFront[1].x, pFront[1].y, '#94a3b8', 1.5, "4,4");
+                    drawLine(layer, pBackRight.x, pBackRight.y, pBackRightTop.x, pBackRightTop.y, '#94a3b8', 1.5, "4,4");
+                    drawLine(layer, pSide[1].x, pSide[1].y, pBackRightTop.x, pBackRightTop.y, '#94a3b8', 1.5, "4,4");
+                    drawLine(layer, pBackRightTop.x, pBackRightTop.y, pFront[2].x, pFront[2].y, '#94a3b8', 1.5, "4,4");
+                }
+
+                drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pFront[1].x},${pFront[1].y} ${pFront[2].x},${pFront[2].y} ${pFront[3].x},${pFront[3].y}`, 'rgba(255,255,255,0.95)', '#0f172a', 2);
+
+                if (L > 0) {
+                    drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pSide[0].x},${pSide[0].y} ${pSide[1].x},${pSide[1].y} ${pFront[3].x},${pFront[3].y}`, 'rgba(248,250,252,0.88)', '#0f172a', 2);
+                    if (model === 'wcut') {
+                        const midX = (pFront[0].x + pSide[0].x) / 2;
+                        const midY = (pFront[0].y + pSide[0].y) / 2;
+                        drawLine(layer, midX, midY, midX, pFront[3].y - (dy / 2), '#0f172a', 1.5, "3,3");
+                    }
+                }
+
+                drawHandles(layer, pFront, pSide, model, scale, L, true, 0, TaliVal);
+
+                drawDimensionArrow(layer, pFront[0].x, pFront[0].y + 18, pFront[1].x, pFront[1].y + 18, `${P} cm`, 'bottom');
+                drawDimensionArrow(layer, pFront[1].x + 18, pFront[1].y, pFront[2].x + 18, pFront[2].y, `${T} cm`, 'right');
+                if (L > 0) {
+                    drawDimensionArrow(layer, pSide[0].x - 20, pSide[0].y + 8, pFront[0].x - 20, pFront[0].y + 8, `${L} cm`, 'left');
+                }
+            }
+
+        } else {
+            // 2D BLUEPRINT
+            const x0 = centerX - (w / 2);
+            const y0 = centerY + (h / 2) - 30;
+
+            const pFront = [
+                {x: x0, y: y0},
+                {x: x0 + w, y: y0},
+                {x: x0 + w, y: y0 - h},
+                {x: x0, y: y0 - h}
+            ];
+
+            drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pFront[1].x},${pFront[1].y} ${pFront[2].x},${pFront[2].y} ${pFront[3].x},${pFront[3].y}`, '#ffffff', '#0f172a', 2);
+
+            if (model === 'thermal') {
+                drawRect(layer, pFront[3].x, pFront[3].y - flapH, w, flapH, '#fef08a', '#ca8a04', 2);
+                drawLine(layer, pFront[3].x, pFront[3].y, pFront[2].x, pFront[2].y, '#ca8a04', 2, "4,2");
+            }
+
+            if (L > 0) {
+                const gussetFoldWidth = Math.min((d / 2), (w / 3));
+                drawLine(layer, pFront[0].x + gussetFoldWidth, pFront[0].y, pFront[0].x + gussetFoldWidth, pFront[3].y, '#e11d48', 1.5, "4,4");
+                drawLine(layer, pFront[1].x - gussetFoldWidth, pFront[1].y, pFront[1].x - gussetFoldWidth, pFront[2].y, '#e11d48', 1.5, "4,4");
+            }
+
+            drawHandles(layer, pFront, null, model, scale, L, false, flapH, TaliVal);
+
+            drawDimensionArrow(layer, pFront[0].x, pFront[0].y + 18, pFront[1].x, pFront[1].y + 18, `Panjang: ${P} cm`, 'bottom');
+            drawDimensionArrow(layer, pFront[1].x + 18, pFront[1].y, pFront[2].x + 18, pFront[2].y, `Tinggi: ${T} cm`, 'right');
+            
+            if (model === 'thermal') {
+                drawDimensionArrow(layer, pFront[2].x + 18, pFront[2].y, pFront[2].x + 18, pFront[2].y - flapH, `+Penutup: ${FlapVal} cm`, 'right', '#ca8a04', 'arrow-yellow');
+            }
+
+            if (model !== 'dcut') {
+                drawDimensionArrow(layer, pFront[3].x - 45, pFront[3].y - (Math.min(50, (TaliVal / 3) * scale)), pFront[3].x - 45, pFront[3].y, `Tali: ${TaliVal} cm`, 'left', '#0284c7', 'arrow-blue');
+            }
+
+            if (L > 0) {
+                const gussetFoldWidth = Math.min((d / 2), (w / 3));
+                drawDimensionArrow(layer, pFront[0].x, pFront[0].y + 42, pFront[0].x + gussetFoldWidth, pFront[0].y + 42, `Lebar (Gusset): ${L} cm`, 'bottom', '#e11d48', 'arrow-red');
+            }
+        }
+    }
+
+    function drawHandles(layer, pFront, pSide, model, scale, L, is3D, flapH = 0, TaliVal = 50) {
+        const topY = pFront[3].y - flapH;
+        const w = pFront[1].x - pFront[0].x;
+        const handleW = Math.min(w * 0.42, 75);
+        const handleH = Math.min(85, Math.max(24, (TaliVal / 3) * scale));
+
+        if (model === 'dcut') {
+            const ovalX = pFront[0].x + (w / 2);
+            const ovalY = topY + 28;
+            const rx = Math.min(w * 0.2, 22);
+            const ry = 8;
+            drawEllipse(layer, ovalX, ovalY, rx, ry, '#ffffff', '#0f172a', 2);
+        } else if (model === 'wcut') {
+            const handleWidth = w * 0.22;
+            const uCutDepth = handleH * 0.45;
+            const pathLeft = `M ${pFront[0].x} ${topY} L ${pFront[0].x} ${topY - handleH} L ${pFront[0].x + handleWidth} ${topY - handleH} L ${pFront[0].x + handleWidth} ${topY - handleH + uCutDepth}`;
+            const pathRight = `M ${pFront[1].x - handleWidth} ${topY - handleH + uCutDepth} L ${pFront[1].x - handleWidth} ${topY - handleH} L ${pFront[1].x} ${topY - handleH} L ${pFront[1].x} ${topY}`;
+            const centerCurve = `M ${pFront[0].x + handleWidth} ${topY - handleH + uCutDepth} Q ${pFront[0].x + (w / 2)} ${topY - handleH + uCutDepth + 10} ${pFront[1].x - handleWidth} ${topY - handleH + uCutDepth}`;
+
+            drawPath(layer, pathLeft, '#ffffff', '#0f172a', 2);
+            drawPath(layer, pathRight, '#ffffff', '#0f172a', 2);
+            drawPath(layer, centerCurve, 'none', '#0f172a', 2);
+        } else {
+            const hx1 = pFront[0].x + (w - handleW) / 2;
+            const hx2 = hx1 + handleW;
+
+            if (is3D && pSide) {
+                const dx = pFront[3].x - pSide.x;
+                const dy = pFront[3].y - pSide.y;
+                const backPath = `M ${hx1 - dx} ${topY - dy} L ${hx1 - dx} ${topY - handleH - dy} L ${hx2 - dx} ${topY - handleH - dy} L ${hx2 - dx} ${topY - dy}`;
+                drawPath(layer, backPath, 'none', '#94a3b8', 1.5, "3,3");
+            }
+
+            const frontPath = `M ${hx1} ${topY} L ${hx1} ${topY - handleH} L ${hx2} ${topY - handleH} L ${hx2} ${topY}`;
+            drawPath(layer, frontPath, 'none', model === 'thermal' ? '#ca8a04' : '#0f172a', 2.5);
+
+            drawRect(layer, hx1 - 4, topY + 2, 8, 10, '#ffffff', '#0f172a', 1);
+            drawRect(layer, hx2 - 4, topY + 2, 8, 10, '#ffffff', '#0f172a', 1);
+        }
+    }
+
+    function drawPolygon(parent, points, fill, stroke, width) {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        el.setAttribute("points", points);
+        el.setAttribute("fill", fill);
+        el.setAttribute("stroke", stroke);
+        el.setAttribute("stroke-width", width);
+        el.setAttribute("stroke-linejoin", "round");
+        parent.appendChild(el);
+    }
+
+    function drawLine(parent, x1, y1, x2, y2, stroke, width, dash = "") {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        el.setAttribute("x1", x1); el.setAttribute("y1", y1);
+        el.setAttribute("x2", x2); el.setAttribute("y2", y2);
+        el.setAttribute("stroke", stroke);
+        el.setAttribute("stroke-width", width);
+        if (dash) el.setAttribute("stroke-dasharray", dash);
+        parent.appendChild(el);
+    }
+
+    function drawPath(parent, d, fill, stroke, width, dash = "") {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        el.setAttribute("d", d);
+        el.setAttribute("fill", fill);
+        el.setAttribute("stroke", stroke);
+        el.setAttribute("stroke-width", width);
+        el.setAttribute("stroke-linejoin", "round");
+        if (dash) el.setAttribute("stroke-dasharray", dash);
+        parent.appendChild(el);
+    }
+
+    function drawEllipse(parent, cx, cy, rx, ry, fill, stroke, width) {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+        el.setAttribute("cx", cx); el.setAttribute("cy", cy);
+        el.setAttribute("rx", rx); el.setAttribute("ry", ry);
+        el.setAttribute("fill", fill);
+        el.setAttribute("stroke", stroke);
+        el.setAttribute("stroke-width", width);
+        parent.appendChild(el);
+    }
+
+    function drawRect(parent, x, y, w, h, fill, stroke, width) {
+        const el = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        el.setAttribute("x", x); el.setAttribute("y", y);
+        el.setAttribute("width", w); el.setAttribute("height", h);
+        el.setAttribute("fill", fill);
+        el.setAttribute("stroke", stroke);
+        el.setAttribute("stroke-width", width);
+        parent.appendChild(el);
+    }
+
+    function drawDimensionArrow(parent, x1, y1, x2, y2, text, align, color = '#0f172a', markerId = 'arrow') {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x1); line.setAttribute("y1", y1);
+        line.setAttribute("x2", x2); line.setAttribute("y2", y2);
+        line.setAttribute("stroke", color);
+        line.setAttribute("stroke-width", "1.5");
+        line.setAttribute("marker-start", `url(#${markerId})`);
+        line.setAttribute("marker-end", `url(#${markerId})`);
+        parent.appendChild(line);
+
+        const textEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        const midX = (x1 + x2) / 2;
+        const midY = (y1 + y2) / 2;
+
+        textEl.setAttribute("x", midX);
+        textEl.setAttribute("y", align === 'bottom' ? midY + 16 : (align === 'right' ? midY + 4 : midY - 8));
+        textEl.setAttribute("fill", color);
+        textEl.setAttribute("font-size", "12");
+        textEl.setAttribute("font-weight", "600");
+        textEl.setAttribute("text-anchor", align === 'right' ? 'start' : (align === 'left' ? 'end' : 'middle'));
+        if (align === 'right') textEl.setAttribute("dx", "8");
+        if (align === 'left') textEl.setAttribute("dx", "-8");
+
+        textEl.textContent = text;
+        parent.appendChild(textEl);
+    }
+
+    // Inisialisasi awal saat halaman dimuat
+    initCatalog();
+    handleModelChange();
+</script>
+</body>
+</html>

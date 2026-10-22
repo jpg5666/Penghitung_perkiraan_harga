@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katalog & Kalkulator Blueprint Tas Spunbond</title>
+<style>
+:root {
+    --primary: #0284c7;
+    --primary-hover: #0369a1;
+    --bg-canvas: #f0f9ff;
+    --text-color: #334155;
+    --border-color: #cbd5e1;
+    --thermal-accent: #ca8a04;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+body {
+    background: #f8fafc;
+    color: var(--text-color);
+    padding: 24px;
+    min-height: 100vh;
+}
+button, input, select {
+    font: inherit;
+}
+button {
+    cursor: pointer;
+}
+.main-wrapper {
+    max-width: 1200px;
+    width: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.nav-tabs {
+    display: flex;
+    gap: 8px;
+    background: white;
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+.tab-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+}
+.tab-btn.active, .view-btn.active {
+    background: var(--primary);
+    color: white;
+}
+.section-view {
+    display: none;
+}
+.section-view.active {
+    display: block;
+}
+.page-heading {
+    margin-bottom: 16px;
+}
+.page-heading h2 {
+    color: #0f172a;
+    font-size: 22px;
+    margin-bottom: 6px;
+}
+.page-heading p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #64748b;
+}
+.catalog-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 20px;
+}
+.catalog-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 4px 6px -1px #00000008;
+    transition: transform .2s, border-color .2s, box-shadow .2s;
+    cursor: pointer;
+}
+.catalog-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 20px #0000000d;
+}
+.catalog-img-box {
+    height: 220px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.catalog-img-box svg {
+    width: 90%;
+    height: 90%;
+}
+.catalog-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+}
+.click-hint {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+}
+.catalog-desc {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.5;
+}
+.color-picker-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.color-label-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.color-label-row span:last-child {
+    color: var(--primary);
+    text-align: right;
+}
+.swatches {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    max-height: 100px;
+    overflow-y: auto;
+    padding: 4px;
+}
+.swatch {
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    flex-shrink: 0;
+    position: relative;
+}
+.swatch.active {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+.swatch.active::after {
+    content: "✓";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--check-color, #0f172a);
+}
+
+/* Modal / Pop-up Card Membesar */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    padding: 20px;
+    background: #0f172a99;
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+}
+.modal-overlay.active {
+    display: flex;
+}
+.modal-content {
+    background: white;
+    max-width: 680px;
+    width: 100%;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 25px 30px -10px #00000033;
+    animation: modalScaleUp 0.25s ease-out;
+}
+@keyframes modalScaleUp {
+    from {
+        transform: scale(0.92);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: #f1f5f9;
+    font-size: 20px;
+    font-weight: bold;
+    color: #334155;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 10;
+}
+.modal-close:hover {
+    background: #e2e8f0;
+}
+
+/* Struktur Card di dalam Pop-up */
+.modal-expanded-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.modal-img-box {
+    height: 250px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.modal-img-box svg {
+    width: 90%;
+    height: 90%;
+}
+.modal-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    padding-right: 35px;
+}
+
+.modal-spec-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    background: #f8fafc;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+.spec-item {
+    font-size: 12px;
+    color: #64748b;
+}
+.spec-item span {
+    display: block;
+    margin-top: 4px;
+    font-weight: 700;
+    color: #0f172a;
+}
+.price-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.price-table th, .price-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #e2e8f0;
+}
+.price-table th {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+.price-table td:last-child {
+    color: var(--primary);
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.app-container {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    overflow: hidden;
+}
+.form-panel {
+    padding: 28px 24px;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.form-panel h2 {
+    font-size: 20px;
+    color: #0f172a;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.form-group > label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+}
+.form-group select, .form-group input {
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 13px;
+}
+.form-group input:focus, .form-group select:focus {
+    outline: 2px solid #0284c733;
+    border-color: var(--primary);
+}
+.grid-dimensions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+}
+.grid-dimensions.thermal-active {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.dimension-label {
+    font-size: 11px;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+.input-hint {
+    font-size: 11px;
+    line-height: 1.5;
+    color: #64748b;
+}
+.btn-submit {
+    width: 100%;
+    padding: 13px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+}
+.btn-submit:hover {
+    background: var(--primary-hover);
+}
+.preview-panel {
+    min-width: 0;
+    background: var(--bg-canvas);
+    padding: 60px 20px 24px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.view-toggle {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    z-index: 1;
+}
+.view-btn {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+}
+.canvas-container {
+    width: 100%;
+    min-height: 400px;
+    height: 480px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#svg-canvas {
+    width: 100%;
+    height: 100%;
+    max-width: 650px;
+    overflow: visible;
+}
+.blueprint-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 11px;
+    color: #64748b;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+.print-receipt-box {
+    display: none;
+}
+@media(max-width: 850px) {
+    body {
+        padding: 12px;
+    }
+    .app-container {
+        grid-template-columns: 1fr;
+    }
+    .form-panel {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .preview-panel {
+        min-height: 430px;
+    }
+    .catalog-container {
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    }
+}
+@media(max-width: 480px) {
+    .nav-tabs {
+        flex-direction: column;
+    }
+    .modal-spec-grid {
+        grid-template-columns: 1fr;
+    }
+    .view-toggle {
+        left: 10px;
+        right: 10px;
+        justify-content: center;
+    }
+    .view-btn {
+        padding: 8px 6px;
+    }
+    .canvas-container {
+        height: 380px;
+        min-height: 330px;
+    }
+    .form-panel {
+        padding: 22px 16px;
+    }
+}
+@media print {
+    @page {
+        size: A4;
+        margin: 15mm;
+    }
+    body {
+        padding: 0;
+        background: white;
+        color: black;
+    }
+    .main-wrapper > .nav-tabs,
+    #view-katalog,
+    .preview-panel,
+    .form-panel select,
+    .form-panel input,
+    .form-panel .input-hint,
+    .form-panel .btn-submit,
+    .form-panel > .form-group {
+        display: none !important;
+    }
+    #view-custom {
+        display: block !important;
+    }
+    .app-container {
+        display: block;
+        border: none;
+        box-shadow: none;
+    }
+    .form-panel {
+        display: block;
+        padding: 0;
+        border: none;
+    }
+    .form-panel h2 {
+        margin-bottom: 20px;
+    }
+    .print-receipt-box {
+        display: block !important;
+        border: 1px solid black;
+        border-radius: 8px;
+        padding: 24px;
+        line-height: 2;
+        font-size: 13px;
+    }
+    .print-receipt-box h3 {
+        margin-bottom: 15px;
+    }
+    .print-note {
+        margin-top: 25px;
+        font-size: 11px;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="nav-tabs">
+        <button class="tab-btn active" id="btn-tab-katalog" onclick="switchTab('katalog')">Katalog Produk & Warna</button>
+        <button class="tab-btn" id="btn-tab-custom" onclick="switchTab('custom')">Kalkulator & Blueprint</button>
+    </div>
+
+    <section class="section-view active" id="view-katalog">
+        <div class="page-heading">
+            <h2>Katalog Model Tas & Pilihan Warna Jinly</h2>
+            <p>Pilih warna kain atau klik card produk untuk melihat tampilan pop-up card besar berisi gambar, pilihan warna, spesifikasi, dan daftar harga.</p>
+        </div>
+        <div class="catalog-container" id="catalog-grid"></div>
+    </section>
+
+    <section class="section-view" id="view-custom">
+        <div class="app-container">
+            <div class="form-panel">
+                <h2>Custom Ukuran Tas</h2>
+
+                <div class="form-group">
+                    <label for="model">Model Tas</label>
+                    <select id="model">
+                        <option value="hbpa">HBPA (Box Automatic 3D)</option>
+                        <option value="thermal">Thermal Box / Insulasi</option>
+                        <option value="hls">HLS (Handle Lipat Samping)</option>
+                        <option value="dcut">D-Cut (Plong Flat)</option>
+                        <option value="wcut">W-Cut (Model Kresek)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Dimensi Tas (cm)</label>
+                    <div class="grid-dimensions" id="grid-dim">
+                        <div>
+                            <label class="dimension-label" for="panjang">Panjang (P)</label>
+                            <input type="number" id="panjang" value="25" min="10" max="100" step="1">
+                        </div>
+                        <div>
+                            <label class="dimension-label" for="tinggi">Tinggi (T)</label>
+                            <input type="number" id="tinggi" value="35" min="10" max="100" step="1">
+                        </div>
+                        <div id="wrapper-lebar">
+                            <label class="dimension-label" for="lebar">Lebar (L)</label>
+                            <input type="number" id="lebar" value="12" min="0" max="50" step="1">
+                        </div>
+                        <div id="wrapper-flap" hidden>
+                            <label class="dimension-label" for="flap" style="color:var(--thermal-accent)">Penutup</label>
+                            <input type="number" id="flap" value="5" min="1" max="25" step="1">
+                        </div>
+                    </div>
+                    <span class="input-hint">Panjang, tinggi, dan lebar menggunakan sentimeter. Model D-Cut tidak menggunakan gusset.</span>
+                </div>
+
+                <div class="form-group" id="group-tali">
+                    <label for="tali">Panjang Tali / Handle (cm)</label>
+                    <input type="number" id="tali" value="50" min="20" max="120" step="1">
+                    <span class="input-hint">Panjang total loop tali jinjing. Nilai ini merupakan parameter visual, bukan pola potong produksi.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="custom-color">Warna Kain</label>
+                    <select id="custom-color"></select>
+                </div>
+
+                <button class="btn-submit" onclick="printReceipt()">Cetak / Simpan Struk Konfigurasi</button>
+
+                <div class="print-receipt-box" id="receipt-box">
+                    <h3>STRUK SPESIFIKASI TAS</h3>
+                    <p><strong>Model:</strong> <span id="r-model"></span></p>
+                    <p><strong>Panjang:</strong> <span id="r-p"></span> cm</p>
+                    <p><strong>Tinggi:</strong> <span id="r-t"></span> cm</p>
+                    <p><strong>Lebar / Gusset:</strong> <span id="r-l"></span> cm</p>
+                    <p id="r-flap-row"><strong>Tinggi penutup:</strong> <span id="r-flap"></span> cm</p>
+                    <p id="r-tali-row"><strong>Panjang tali:</strong> <span id="r-tali"></span> cm</p>
+                    <p><strong>Warna kain:</strong> <span id="r-color"></span></p>
+                    <p class="print-note">Dokumen konfigurasi awal. Verifikasi pola potong, toleransi, sambungan, dan spesifikasi bahan sebelum produksi.</p>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="view-toggle">
+                    <button class="view-btn active" id="btn-3d" onclick="setViewMode('3d')">Sketsa 3D</button>
+                    <button class="view-btn" id="btn-2d" onclick="setViewMode('2d')">Tampak Depan 2D</button>
+                </div>
+                <div class="canvas-container">
+                    <svg id="svg-canvas" viewBox="0 0 560 460" role="img" aria-label="Blueprint tas dengan ukuran"></svg>
+                </div>
+                <div class="blueprint-legend">
+                    <div class="legend-item"><span class="legend-dot" style="background:#0284c7"></span> Tali / handle</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#e11d48"></span> Garis gusset</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#ca8a04"></span> Penutup thermal</div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Modal Pop-Up Card Membesar -->
+<div class="modal-overlay" id="productModal" onclick="closeModalOutside(event)">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button class="modal-close" onclick="closeModal()" aria-label="Tutup detail">&times;</button>
+        
+        <!-- Wujud Card yang Membesar (Menyatu dengan Gambar, Warna, dan Detail di Bawahnya) -->
+        <div class="modal-expanded-card">
+            <div class="modal-img-box" id="modalPreviewBox"></div>
+            <div class="modal-title" id="modalTitle">Detail Produk</div>
+            <div class="catalog-desc" id="modalDesc"></div>
+            
+            <div class="color-picker-group">
+                <div class="color-label-row">
+                    <span>Warna kain:</span>
+                    <span id="modalSelectedColorName">Putih (PT)</span>
+                </div>
+                <div class="swatches" id="modalSwatchesContainer" onclick="event.stopPropagation()"></div>
+            </div>
+
+            <div class="modal-spec-grid">
+                <div class="spec-item">Ukuran<span id="modalUkuran">-</span></div>
+                <div class="spec-item">Ketebalan bahan<span id="modalGsm">-</span></div>
+                <div class="spec-item">Minimal order custom<span id="modalMinOrder">200 pcs</span></div>
+                <div class="spec-item">Estimasi pengerjaan<span id="modalPengerjaan">14 hari kerja</span></div>
+            </div>
+
+            <h3 style="font-size:14px;color:#0f172a;margin-top:4px;">Daftar Harga Berdasarkan Kuantitas dan Sablon</h3>
+            <div style="overflow-x:auto">
+                <table class="price-table">
+                    <thead>
+                        <tr><th>Sisi & Warna Sablon</th><th>Kuantitas</th><th>Harga / pcs</th></tr>
+                    </thead>
+                    <tbody id="modalPriceTableBody"></tbody>
+                </table>
+            </div>
+            <p class="input-hint">Harga merupakan data referensi yang dimasukkan pada katalog, bukan penawaran harga real-time.</p>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const SVG_NS = "http://www.w3.org/2000/svg";
+
+const catalogData = [
+    {
+        id: "hbpa",
+        title: "HBPA (Box Automatic 3D)",
+        desc: "Tas box tegak dengan alas dan samping penuh.",
+        ukuran: "25 x 12 x 35 cm",
+        gsm: "75 GSM",
+        prices: [
+            ["Polos", "<200 pcs", "Rp 4.300"],
+            ["Polos", "200–499 pcs", "Rp 4.085"],
+            ["Polos", "500–999 pcs", "Rp 3.881"],
+            ["1 sisi - 1 warna", "<200 pcs", "Rp 4.700"],
+            ["1 sisi - 1 warna", "200–499 pcs", "Rp 4.485"],
+            ["2 sisi - 1 warna", "<200 pcs", "Rp 5.200"],
+            ["2 sisi - 2 warna", "<200 pcs", "Rp 5.300"]
+        ]
+    },
+    {
+        id: "thermal",
+        title: "Thermal Box (Chagee Style)",
+        desc: "Tas box dengan lapisan insulasi dan penutup atas.",
+        ukuran: "30 x 15 x 35 cm + flap",
+        gsm: "85 GSM (insulasi)",
+        prices: [
+            ["Polos", "<200 pcs", "Rp 5.500"],
+            ["Polos", "200–499 pcs", "Rp 5.200"],
+            ["1 sisi - 1 warna", "<200 pcs", "Rp 6.000"],
+            ["2 sisi - 1 warna", "<200 pcs", "Rp 6.500"]
+        ]
+    },
+    {
+        id: "hls",
+        title: "HLS (Handle Lipat Samping)",
+        desc: "Tas dengan lipatan samping dan bagian dasar.",
+        ukuran: "30 x 7 x 40 cm",
+        gsm: "75 GSM",
+        prices: [
+            ["Polos", "<200 pcs", "Rp 4.500"],
+            ["Polos", "200–499 pcs", "Rp 4.275"],
+            ["1 sisi - 1 warna", "<200 pcs", "Rp 4.900"],
+            ["2 sisi - 1 warna", "<200 pcs", "Rp 5.400"],
+            ["2 sisi - 2 warna", "<200 pcs", "Rp 5.500"]
+        ]
+    },
+    {
+        id: "dcut",
+        title: "D-Cut (Plong Flat)",
+        desc: "Tas datar tanpa gusset dengan lubang pegangan.",
+        ukuran: "25 x 35 cm (tanpa gusset)",
+        gsm: "75 GSM",
+        prices: [
+            ["Polos", "<200 pcs", "Rp 2.000"],
+            ["Polos", "200–499 pcs", "Rp 1.900"],
+            ["1 sisi - 1 warna", "<200 pcs", "Rp 2.250"],
+            ["2 sisi - 1 warna", "<200 pcs", "Rp 2.600"],
+            ["2 sisi - 2 warna", "<200 pcs", "Rp 2.850"]
+        ]
+    },
+    {
+        id: "wcut",
+        title: "W-Cut (Model Kresek)",
+        desc: "Tas model kresek dengan pegangan potong menyatu.",
+        ukuran: "30 x 40 cm (V-Fold)",
+        gsm: "75 GSM",
+        prices: [
+            ["Polos", "<200 pcs", "Rp 2.500"],
+            ["Polos", "200–499 pcs", "Rp 2.375"],
+            ["1 sisi - 1 warna", "<200 pcs", "Rp 2.750"],
+            ["2 sisi - 1 warna", "<200 pcs", "Rp 3.100"],
+            ["2 sisi - 2 warna", "<200 pcs", "Rp 3.350"]
+        ]
+    }
+];
+
+const jinlyColors = [
+    {code:"PT",name:"Putih",hex:"#ffffff"},
+    {code:"CR",name:"Cream",hex:"#fdf6e2"},
+    {code:"KG",name:"Kuning",hex:"#ffd700"},
+    {code:"OR",name:"Orange",hex:"#ff7f00"},
+    {code:"MT",name:"Merah Tua",hex:"#cc0000"},
+    {code:"PF",name:"Pink Fanta",hex:"#ff1493"},
+    {code:"LP",name:"Light Pink",hex:"#ffb6c1"},
+    {code:"UG",name:"Ungu",hex:"#8a2be2"},
+    {code:"BN",name:"Biru Navy",hex:"#000080"},
+    {code:"BP",name:"Biru Persib",hex:"#1e90ff"},
+    {code:"BL",name:"Biru Langit",hex:"#87ceeb"},
+    {code:"TG",name:"Tosca",hex:"#008b8b"},
+    {code:"HS",name:"Hijau Sedang",hex:"#228b22"},
+    {code:"SG",name:"Hijau Stabilo",hex:"#adff2f"},
+    {code:"BHD",name:"Bottle Dark Green",hex:"#004d40"},
+    {code:"CM",name:"Coklat Moka",hex:"#b8860b"},
+    {code:"AT",name:"Abu Tua",hex:"#708090"},
+    {code:"CT",name:"Coklat Tua",hex:"#5c4033"},
+    {code:"HT",name:"Hitam",hex:"#111111"},
+    {code:"MR",name:"Maroon",hex:"#800000"}
+];
+
+const selectedCatalogColors = {};
+let currentViewMode = "3d";
+let currentModalModel = null;
+
+function el(id) {
+    return document.getElementById(id);
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    })[char]);
+}
+
+function colorText(hex) {
+    const value = hex.replace("#", "");
+    const r = parseInt(value.substring(0,2),16);
+    const g = parseInt(value.substring(2,4),16);
+    const b = parseInt(value.substring(4,6),16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 145
+        ? "#0f172a"
+        : "#ffffff";
+}
+
+function bagSVG(model, color, id) {
+    const thermal = model.id === "thermal";
+    const dcut = model.id === "dcut";
+    const wcut = model.id === "wcut";
+    const front = color.hex;
+    const side = thermal ? "#e2e8f0" : shadeColor(color.hex, -15);
+    const top = shadeColor(color.hex, 12);
+    let shape = "";
+
+    if (dcut) {
+        shape = `
+            <path d="M55 70 L245 70 L245 240 L55 240 Z"
+                fill="${front}" stroke="#334155" stroke-width="2"/>
+            <ellipse cx="150" cy="88" rx="28" ry="9"
+                fill="#f8fafc" stroke="#334155" stroke-width="2"/>
+        `;
+    } else if (wcut) {
+        shape = `
+            <path d="M55 95 L85 95 L85 70 L110 70
+                L110 88 Q150 112 190 88 L190 70 L215 70
+                L215 95 L245 95 L245 240 L55 240 Z"
+                fill="${front}" stroke="#334155" stroke-width="2"/>
+            <path d="M110 88 Q150 112 190 88"
+                fill="none" stroke="#334155" stroke-width="2"/>
+        `;
+    } else {
+        shape = `
+            <path d="M55 95 L83 76 L273 76 L245 95 Z"
+                fill="${top}" stroke="#334155" stroke-width="2"/>
+            <path d="M245 95 L273 76 L273 221 L245 240 Z"
+                fill="${side}" stroke="#334155" stroke-width="2"/>
+            <path d="M55 95 L245 95 L245 240 L55 240 Z"
+                fill="${front}" stroke="#334155" stroke-width="2"/>
+            ${thermal ? `
+                <path d="M55 95 L245 95 L245 125 L55 125 Z"
+                    fill="#fde68a" stroke="#ca8a04" stroke-width="2"/>
+                <path d="M55 125 L245 125"
+                    stroke="#ca8a04" stroke-width="2" stroke-dasharray="5 4"/>
+            ` : `
+                <path d="M115 95 L115 55 Q150 25 185 55 L185 95"
+                    fill="none" stroke="#334155" stroke-width="8"/>
+            `}
+        `;
+    }
+
+    return `
+        <svg viewBox="0 0 320 290" role="img" aria-label="${escapeHTML(model.title)} warna ${escapeHTML(color.name)}">
+            <defs>
+                <linearGradient id="bg-${id}" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity=".45"/>
+                    <stop offset="100%" stop-color="#0f172a" stop-opacity=".08"/>
+                </linearGradient>
+            </defs>
+            <ellipse cx="160" cy="250" rx="105" ry="12" fill="#0f172a" opacity=".08"/>
+            ${shape}
+            <path d="M55 95 L245 95 L245 240 L55 240 Z"
+                fill="url(#bg-${id})" pointer-events="none"/>
+            <text x="160" y="275" text-anchor="middle" fill="#475569"
+                font-size="11">${escapeHTML(color.name)} (${escapeHTML(color.code)})</text>
+        </svg>
+    `;
+}
+
+function shadeColor(hex, percent) {
+    const num = parseInt(hex.replace("#",""),16);
+    const amount = Math.round(2.55 * percent);
+    const r = Math.max(0,Math.min(255,(num >> 16) + amount));
+    const g = Math.max(0,Math.min(255,((num >> 8) & 0xff) + amount));
+    const b = Math.max(0,Math.min(255,(num & 0xff) + amount));
+    return "#" + (0x1000000 + (r << 16) + (g << 8) + b)
+        .toString(16).slice(1);
+}
+
+function initCatalog() {
+    const grid = el("catalog-grid");
+    grid.innerHTML = "";
+
+    catalogData.forEach(item => {
+        selectedCatalogColors[item.id] = "PT";
+        const card = document.createElement("article");
+        card.className = "catalog-card";
+        card.onclick = () => openModal(item.id);
+
+        const swatches = jinlyColors.map(color => `
+            <button type="button"
+                class="swatch ${color.code === "PT" ? "active" : ""}"
+                style="background:${color.hex};--check-color:${colorText(color.hex)}"
+                title="${escapeHTML(color.name)} (${color.code})"
+                aria-label="Pilih warna ${escapeHTML(color.name)}"
+                aria-pressed="${color.code === "PT"}"
+                onclick="selectCatalogColor(event,'${item.id}','${color.code}')"></button>
+        `).join("");
+
+        card.innerHTML = `
+            <div class="catalog-img-box" id="preview-${item.id}">
+                ${bagSVG(item,jinlyColors[0],item.id)}
+            </div>
+            <div class="catalog-title">${escapeHTML(item.title)}</div>
+            <div class="click-hint">Klik untuk buka pop-up card besar</div>
+            <div class="catalog-desc">${escapeHTML(item.desc)}</div>
+            <div class="color-picker-group">
+                <div class="color-label-row">
+                    <span>Warna kain:</span>
+                    <span id="selected-color-name-${item.id}">Putih (PT)</span>
+                </div>
+                <div class="swatches" onclick="event.stopPropagation()">${swatches}</div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+
+    el("custom-color").innerHTML = jinlyColors.map(color => `
+        <option value="${color.code}">${color.name} (${color.code})</option>
+    `).join("");
+}
+
+function selectCatalogColor(event, modelId, colorCode) {
+    event.stopPropagation();
+    selectedCatalogColors[modelId] = colorCode;
+
+    const color = jinlyColors.find(item => item.code === colorCode);
+    const model = catalogData.find(item => item.id === modelId);
+
+    // Update tampilan di grid utama
+    el(`selected-color-name-${modelId}`).textContent = `${color.name} (${color.code})`;
+    el(`preview-${modelId}`).innerHTML = bagSVG(model, color, modelId);
+
+    const card = el(`preview-${modelId}`).closest(".catalog-card");
+    card.querySelectorAll(".swatch").forEach((button, index) => {
+        const active = jinlyColors[index].code === colorCode;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+    });
+
+    // Sinkronisasi dengan modal pop-up jika sedang aktif
+    if (currentModalModel === modelId) {
+        updateModalPreview();
+    }
+}
+
+function updateModalPreview() {
+    if (!currentModalModel) return;
+    const model = catalogData.find(item => item.id === currentModalModel);
+    const colorCode = selectedCatalogColors[currentModalModel];
+    const color = jinlyColors.find(item => item.code === colorCode);
+
+    el("modalSelectedColorName").textContent = `${color.name} (${color.code})`;
+    el("modalPreviewBox").innerHTML = bagSVG(model, color, "modal-" + model.id);
+
+    const modalSwatches = el("modalSwatchesContainer").querySelectorAll(".swatch");
+    modalSwatches.forEach((button, index) => {
+        const active = jinlyColors[index].code === colorCode;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+    });
+}
+
+function openModal(modelId) {
+    const model = catalogData.find(item => item.id === modelId);
+    if (!model) return;
+
+    currentModalModel = modelId;
+    const colorCode = selectedCatalogColors[modelId];
+    const color = jinlyColors.find(item => item.code === colorCode);
+
+    el("modalTitle").textContent = model.title;
+    el("modalDesc").textContent = model.desc;
+    el("modalUkuran").textContent = model.ukuran;
+    el("modalGsm").textContent = model.gsm;
+
+    el("modalSwatchesContainer").innerHTML = jinlyColors.map(c => `
+        <button type="button"
+            class="swatch ${c.code === colorCode ? "active" : ""}"
+            style="background:${c.hex};--check-color:${colorText(c.hex)}"
+            title="${escapeHTML(c.name)} (${c.code})"
+            aria-label="Pilih warna ${escapeHTML(c.name)}"
+            aria-pressed="${c.code === colorCode}"
+            onclick="selectCatalogColor(event,'${model.id}','${c.code}')"></button>
+    `).join("");
+
+    updateModalPreview();
+
+    el("modalPriceTableBody").innerHTML = model.prices.map(price => `
+        <tr>
+            <td>${escapeHTML(price[0])}</td>
+            <td>${escapeHTML(price[1])}</td>
+            <td>${escapeHTML(price[2])}</td>
+        </tr>
+    `).join("");
+
+    el("productModal").classList.add("active");
+    el("productModal").setAttribute("aria-hidden","false");
+    el("modalTitle").focus?.();
+}
+
+function closeModal() {
+    el("productModal").classList.remove("active");
+    el("productModal").setAttribute("aria-hidden","true");
+    currentModalModel = null;
+}
+
+function closeModalOutside(event) {
+    if (event.target === el("productModal")) closeModal();
+}
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeModal();
+});
+
+function switchTab(tabName) {
+    document.querySelectorAll(".tab-btn").forEach(button => {
+        button.classList.remove("active");
+    });
+    document.querySelectorAll(".section-view").forEach(view => {
+        view.classList.remove("active");
+    });
+
+    el(`btn-tab-${tabName}`).classList.add("active");
+    el(`view-${tabName}`).classList.add("active");
+
+    if (tabName === "custom") processUpdate();
+}
+
+function setViewMode(mode) {
+    currentViewMode = mode;
+    el("btn-3d").classList.toggle("active",mode === "3d");
+    el("btn-2d").classList.toggle("active",mode === "2d");
+    processUpdate();
+}
+
+function readDimension(id, fallback) {
+    const input = el(id);
+    const value = Number(input.value);
+    return input.value.trim() === "" || !Number.isFinite(value)
+        ? fallback
+        : Math.max(Number(input.min),Math.min(Number(input.max),value));
+}
+
+function validateInput(input) {
+    const value = Number(input.value);
+    const min = Number(input.min);
+    const max = Number(input.max);
+
+    if (input.value.trim() === "" || !Number.isFinite(value)) {
+        input.value = input.defaultValue;
+    } else {
+        input.value = Math.max(min,Math.min(max,value));
+    }
+    processUpdate();
+}
+
+function handleModelChange() {
+    const model = el("model").value;
+    const thermal = model === "thermal";
+    const dcut = model === "dcut";
+
+    el("wrapper-flap").hidden = !thermal;
+    el("grid-dim").classList.toggle("thermal-active",thermal);
+    el("lebar").disabled = dcut;
+    el("lebar").value = dcut ? 0 :
+        (Number(el("lebar").value) === 0 ? 12 : el("lebar").value);
+    el("group-tali").hidden = dcut;
+
+    processUpdate();
+}
+
+function processUpdate() {
+    const model = el("model").value;
+    const P = readDimension("panjang",25);
+    const T = readDimension("tinggi",35);
+    const L = model === "dcut" ? 0 : readDimension("lebar",12);
+    const flap = model === "thermal" ? readDimension("flap",5) : 0;
+    const tali = model === "dcut" ? 0 : readDimension("tali",50);
+    const color = jinlyColors.find(item =>
+        item.code === el("custom-color").value
+    ) || jinlyColors[0];
+
+    el("r-model").textContent =
+        el("model").options[el("model").selectedIndex].text;
+    el("r-p").textContent = P;
+    el("r-t").textContent = T;
+    el("r-l").textContent = L;
+    el("r-flap").textContent = flap;
+    el("r-tali").textContent = tali;
+    el("r-color").textContent = `${color.name} (${color.code})`;
+
+    el("r-flap-row").style.display = model === "thermal" ? "block" : "none";
+    el("r-tali-row").style.display = model === "dcut" ? "none" : "block";
+
+    renderSVGBlueprint(P,T,L,flap,tali,model,currentViewMode,color);
+}
+
+function svgElement(tag, attributes = {}, parent = el("svg-canvas")) {
+    const node = document.createElementNS(SVG_NS,tag);
+    Object.entries(attributes).forEach(([key,value]) => {
+        node.setAttribute(key,String(value));
+    });
+    parent.appendChild(node);
+    return node;
+}
+
+function polygon(points, fill, stroke = "#0f172a", width = 2) {
+    return svgElement("polygon",{
+        points:points.map(p => `${p.x},${p.y}`).join(" "),
+        fill,
+        stroke,
+        "stroke-width":width,
+        "stroke-linejoin":"round"
+    });
+}
+
+function line(x1,y1,x2,y2,color="#0f172a",width=1.5,dash="") {
+    const attrs = {
+        x1,y1,x2,y2,
+        stroke:color,
+        "stroke-width":width
+    };
+    if (dash) attrs["stroke-dasharray"] = dash;
+    return svgElement("line",attrs);
+}
+
+function textSVG(x,y,value,color="#0f172a",anchor="middle",size=12) {
+    const node = svgElement("text",{
+        x,y,fill:color,
+        "font-size":size,
+        "font-weight":600,
+        "text-anchor":anchor
+    });
+    node.textContent = value;
+    return node;
+}
+
+function dimension(x1,y1,x2,y2,label,orientation,color="#0f172a") {
+    line(x1,y1,x2,y2,color,1.4);
+    const horizontal = Math.abs(y2-y1) < Math.abs(x2-x1);
+    const tick = 4;
+
+    if (horizontal) {
+        line(x1,y1-tick,x1,y1+tick,color,1.2);
+        line(x2,y2-tick,x2,y2+tick,color,1.2);
+        textSVG((x1+x2)/2,(y1+y2)/2+(orientation==="top"?-9:17),
+            label,color,"middle",11);
+    } else {
+        line(x1-tick,y1,x1+tick,y1,color,1.2);
+        line(x2-tick,y2,x2+tick,y2,color,1.2);
+        const side = orientation === "left" ? -9 : 9;
+        textSVG((x1+x2)/2+side,(y1+y2)/2,label,color,
+            orientation==="left"?"end":"start",11);
+    }
+}
+
+function drawHandle(front,model,scale,tali,color) {
+    const width = front[1].x-front[0].x;
+    const topY = front[3].y;
+    const xMid = (front[0].x+front[1].x)/2;
+    const handleH = Math.min(70,Math.max(25,tali*scale*0.25));
+    const handleW = Math.min(width*0.32,55);
+
+    if (model === "dcut") {
+        svgElement("ellipse",{
+            cx:xMid,cy:topY+14,rx:Math.min(width*0.18,22),ry:7,
+            fill:"#f8fafc",stroke:"#0f172a","stroke-width":2
+        });
+    } else if (model === "wcut") {
+        const left = front[0].x+width*0.28;
+        const right = front[1].x-width*0.28;
+        const depth = Math.min(handleH*0.45,25);
+        line(front[0].x,topY,left,topY-handleH,color,2);
+        line(left,topY-handleH,left,topY-depth,color,2);
+        line(right,topY-depth,right,topY-handleH,color,2);
+        line(right,topY-handleH,front[1].x,topY,color,2);
+        svgElement("path",{
+            d:`M ${left} ${topY-depth} Q ${xMid} ${topY+5} ${right} ${topY-depth}`,
+            fill:"none",stroke:"#0f172a","stroke-width":2
+        });
+    } else if (model !== "thermal") {
+        const x1 = xMid-handleW/2;
+        const x2 = xMid+handleW/2;
+        svgElement("path",{
+            d:`M ${x1} ${topY} L ${x1} ${topY-handleH}
+               Q ${xMid} ${topY-handleH-12} ${x2} ${topY-handleH}
+               L ${x2} ${topY}`,
+            fill:"none",stroke:"#0f172a","stroke-width":3
+        });
+    }
+}
+
+function renderSVGBlueprint(P,T,L,flap,tali,model,mode,color) {
+    const svg = el("svg-canvas");
+    svg.innerHTML = "";
+
+    const defs = svgElement("defs");
+    const pattern = svgElement("linearGradient",{
+        id:"bagShade",x1:"0%",y1:"0%",x2:"100%",y2:"100%"
+    },defs);
+    svgElement("stop",{"offset":"0%","stop-color":"#ffffff","stop-opacity":".3"},pattern);
+    svgElement("stop",{"offset":"100%","stop-color":"#0f172a","stop-opacity":".07"},pattern);
+
+    const W = 560;
+    const H = 460;
+    const depth = model === "dcut" ? 0 : L;
+    const totalHeight = T + flap;
+    const scale = Math.min(
+        260 / P,
+        275 / totalHeight,
+        depth > 0 ? 105 / depth : 5,
+        5
+    );
+
+    const w = P*scale;
+    const h = T*scale;
+    const d = depth*scale*0.65;
+    const fh = flap*scale;
+
+    const frontColor = color.hex;
+    const sideColor = shadeColor(color.hex,-17);
+    const sideDx = d*0.7;
+    const sideDy = d*0.35;
+
+    if (mode === "2d") {
+        const x = (W-w)/2;
+        const y = 270;
+        const front = [
+            {x,y},
+            {x:x+w,y},
+            {x:x+w,y:y-h},
+            {x,y:y-h}
+        ];
+
+        polygon(front,frontColor);
+        svgElement("rect",{
+            x,y:y-h,width:w,height:h,
+            fill:"url(#bagShade)",stroke:"none","pointer-events":"none"
+        });
+
+        if (model === "thermal") {
+            svgElement("rect",{
+                x,y:y-h-fh,width:w,height:fh,
+                fill:"#fde68a",stroke:"#ca8a04","stroke-width":2
+            });
+            line(x,y-h,x+w,y-h,"#ca8a04",2,"5 4");
+            dimension(x+w+24,y-h,x+w+24,y-h-fh,
+                `Flap ${flap} cm`,"right","#ca8a04");
+        }
+
+        if (model !== "dcut" && model !== "wcut") {
+            const handleW = Math.min(w*0.3,55);
+            const hx1 = x+(w-handleW)/2;
+            const hx2 = hx1+handleW;
+            const handleH = Math.min(60,Math.max(25,tali*scale*0.22));
+            svgElement("path",{
+                d:`M ${hx1} ${y-h} L ${hx1} ${y-h-handleH}
+                Q ${(hx1+hx2)/2} ${y-h-handleH-12} ${hx2} ${y-h-handleH}
+                L ${hx2} ${y-h}`,
+                fill:"none",stroke:"#0284c7","stroke-width":3
+            });
+        } else {
+            drawHandle(front,model,scale,tali,frontColor);
+        }
+
+        if (model === "dcut") {
+            svgElement("ellipse",{
+                cx:x+w/2,cy:y-h+14,rx:Math.min(w*0.18,22),ry:7,
+                fill:"#f8fafc",stroke:"#0f172a","stroke-width":2
+            });
+        }
+
+        if (model === "wcut") drawHandle(front,model,scale,tali,frontColor);
+
+        if (L > 0) {
+            const fold = Math.min(d/2,w/3);
+            line(x+fold,y-h,x+fold,y,"#e11d48",1.5,"5 4");
+            line(x+w-fold,y-h,x+w-fold,y,"#e11d48",1.5,"5 4");
+            dimension(x,y+36,x+w,y+36,`Panjang: ${P} cm`,"bottom");
+            dimension(x-20,y,x-20,y-h,`Tinggi: ${T} cm`,"left");
+            dimension(x,y+57,x+fold,y+57,`Gusset: ${L} cm`,"bottom","#e11d48");
+        } else {
+            dimension(x,y+36,x+w,y+36,`Panjang: ${P} cm`,"bottom");
+            dimension(x+w+20,y,x+w+20,y-h,`Tinggi: ${T} cm`,"right");
+        }
+
+        if (model !== "dcut") {
+            textSVG(W/2,425,`Panjang tali: ${tali} cm`,"#0284c7","middle",11);
+        }
+    } else {
+        const x = (W-w+sideDx)/2;
+        const y = 315;
+
+        const front = [
+            {x,y},
+            {x:x+w,y},
+            {x:x+w,y:y-h},
+            {x,y:y-h}
+        ];
+
+        if (depth > 0) {
+            const backLeft = {x:x-sideDx,y:y-sideDy};
+            const backLeftTop = {x:x-sideDx,y:y-h-sideDy};
+            const backRight = {x:x+w-sideDx,y:y-sideDy};
+            const backRightTop = {x:x+w-sideDx,y:y-h-sideDy};
+
+            polygon([
+                front[0],backLeft,backLeftTop,front[3]
+            ],sideColor);
+            polygon([
+                front[0],front[1],backRight,backLeft
+            ],shadeColor(color.hex,-9));
+            line(backLeft.x,backLeft.y,backRight.x,backRight.y,"#64748b",1.3,"4 4");
+            line(backRight.x,backRight.y,backRightTop.x,backRightTop.y,"#64748b",1.3,"4 4");
+            line(backRightTop.x,backRightTop.y,front[2].x,front[2].y,"#64748b",1.3,"4 4");
+        }
+
+        polygon(front,frontColor);
+        svgElement("rect",{
+            x,y:y-h,width:w,height:h,
+            fill:"url(#bagShade)",stroke:"none","pointer-events":"none"
+        });
+
+        if (model === "thermal") {
+            polygon([
+                {x,y:y-h},
+                {x:x+w,y:y-h},
+                {x:x+w,y:y-h-fh},
+                {x,y:y-h-fh}
+            ],"#fde68a","#ca8a04",2);
+            line(x,y-h,x+w,y-h,"#ca8a04",2,"5 4");
+            dimension(x+w+25,y-h,x+w+25,y-h-fh,
+                `+${flap} cm`,"right","#ca8a04");
+        }
+
+        if (model === "hls" || model === "hbpa") {
+            drawHandle(front,model,scale,tali,frontColor);
+        } else if (model === "dcut" || model === "wcut") {
+            drawHandle(front,model,scale,tali,frontColor);
+        }
+
+        if (model !== "thermal" && model !== "dcut" && model !== "wcut") {
+            const handleW = Math.min(w*0.3,55);
+            const hx1 = x+(w-handleW)/2;
+            const hx2 = hx1+handleW;
+            const handleH = Math.min(60,Math.max(25,tali*scale*0.22));
+            svgElement("path",{
+                d:`M ${hx1} ${y-h} L ${hx1} ${y-h-handleH}
+                Q ${(hx1+hx2)/2} ${y-h-handleH-12} ${hx2} ${y-h-handleH}
+                L ${hx2} ${y-h}`,
+                fill:"none",stroke:"#0284c7","stroke-width":2.5
+            });
+        }
+
+        dimension(x,y+22,x+w,y+22,`${P} cm`,"bottom");
+        dimension(x+w+22,y,x+w+22,y-h,`${T} cm`,"right");
+
+        if (depth > 0) {
+            dimension(x-sideDx-17,y-sideDy,x-17,y,
+                `${L} cm`,"left","#e11d48");
+        }
+    }
+
+    textSVG(W/2,24,mode === "3d" ? "SKETSA 3D - REFERENSI VISUAL" : "BLUEPRINT 2D - TAMPAK DEPAN",
+        "#334155","middle",12);
+    textSVG(W/2,444,`${model.toUpperCase()} | ${color.name} (${color.code})`,
+        "#64748b","middle",11);
+}
+
+function printReceipt() {
+    processUpdate();
+    window.print();
+}
+
+["panjang","tinggi","lebar","flap","tali"].forEach(id => {
+    const input = el(id);
+    input.addEventListener("input",processUpdate);
+    input.addEventListener("change",() => validateInput(input));
+    input.addEventListener("keydown",event => {
+        if (["-","e","E"].includes(event.key)) event.preventDefault();
+    });
+});
+
+el("model").addEventListener("change",handleModelChange);
+el("custom-color").addEventListener("change",processUpdate);
+
+initCatalog();
+handleModelChange();
+</script>
+</body>
+</html>
