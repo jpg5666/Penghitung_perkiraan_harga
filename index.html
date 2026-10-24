@@ -1,739 +1,1486 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator & Blueprint Sketsa Tas Spunbond Presisi</title>
-    <style>
-        :root {
-            --primary: #0284c7;
-            --primary-hover: #0369a1;
-            --bg-canvas: #f0f9ff;
-            --line-color: #0f172a;
-            --text-color: #334155;
-            --border-color: #cbd5e1;
-            --thermal-accent: #ca8a04;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katalog & Kalkulator Blueprint Tas Spunbond</title>
+<style>
+:root {
+    --primary: #0284c7;
+    --primary-hover: #0369a1;
+    --bg-canvas: #f0f9ff;
+    --text-color: #334155;
+    --border-color: #cbd5e1;
+    --thermal-accent: #ca8a04;
+}
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+body {
+    background: #f8fafc;
+    color: var(--text-color);
+    padding: 24px;
+    min-height: 100vh;
+}
+button, input, select {
+    font: inherit;
+}
+button {
+    cursor: pointer;
+}
+.main-wrapper {
+    max-width: 1200px;
+    width: 100%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.nav-tabs {
+    display: flex;
+    gap: 8px;
+    background: white;
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+.tab-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 8px;
+}
+.tab-btn.active, .view-btn.active {
+    background: var(--primary);
+    color: white;
+}
+.section-view {
+    display: none;
+}
+.section-view.active {
+    display: block;
+}
+.page-heading {
+    margin-bottom: 16px;
+}
+.page-heading h2 {
+    color: #0f172a;
+    font-size: 22px;
+    margin-bottom: 6px;
+}
+.page-heading p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: #64748b;
+}
+.catalog-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 20px;
+}
+.catalog-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 4px 6px -1px #00000008;
+    transition: transform .2s, border-color .2s, box-shadow .2s;
+    cursor: pointer;
+}
+.catalog-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 20px #0000000d;
+}
+.catalog-img-box {
+    height: 220px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.catalog-img-box svg {
+    width: 90%;
+    height: 90%;
+}
+.catalog-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+}
+.click-hint {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--primary);
+}
+.catalog-desc {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.5;
+}
+.color-picker-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.color-label-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.color-label-row span:last-child {
+    color: var(--primary);
+    text-align: right;
+}
+.swatches {
+    display: flex;
+    gap: 7px;
+    flex-wrap: wrap;
+    max-height: 100px;
+    overflow-y: auto;
+    padding: 4px;
+}
+.swatch {
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    flex-shrink: 0;
+    position: relative;
+}
+.swatch.active {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+.swatch.active::after {
+    content: "✓";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--check-color, #0f172a);
+}
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+/* Modal / Pop-up Card Membesar */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    padding: 20px;
+    background: #0f172a99;
+    backdrop-filter: blur(4px);
+    align-items: center;
+    justify-content: center;
+}
+.modal-overlay.active {
+    display: flex;
+}
+.modal-content {
+    background: white;
+    max-width: 680px;
+    width: 100%;
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 25px 30px -10px #00000033;
+    animation: modalScaleUp 0.25s ease-out;
+}
+@keyframes modalScaleUp {
+    from {
+        transform: scale(0.92);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+.modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: #f1f5f9;
+    font-size: 20px;
+    font-weight: bold;
+    color: #334155;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 10;
+}
+.modal-close:hover {
+    background: #e2e8f0;
+}
 
-        body {
-            background-color: #f8fafc;
-            color: var(--text-color);
-            padding: 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+/* Struktur Card di dalam Pop-up */
+.modal-expanded-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.modal-img-box {
+    height: 250px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.modal-img-box svg {
+    width: 90%;
+    height: 90%;
+}
+.modal-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    padding-right: 35px;
+}
 
-        .app-container {
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e2e8f0;
-            max-width: 1150px;
-            width: 100%;
-            display: grid;
-            grid-template-columns: 380px 1fr;
-            overflow: hidden;
-        }
+.modal-spec-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    background: #f8fafc;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+.spec-item {
+    font-size: 12px;
+    color: #64748b;
+}
+.spec-item span {
+    display: block;
+    margin-top: 4px;
+    font-weight: 700;
+    color: #0f172a;
+}
+.price-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.price-table th, .price-table td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #e2e8f0;
+}
+.price-table th {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+.price-table td:last-child {
+    color: var(--primary);
+    font-weight: 800;
+    white-space: nowrap;
+}
 
-        .form-panel {
-            padding: 32px 24px;
-            border-right: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            background: #ffffff;
-        }
-
-        .form-panel h2 {
-            font-size: 20px;
-            font-weight: 700;
-            color: #0f172a;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #475569;
-        }
-
-        select, input[type="number"] {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 14px;
-            outline: none;
-            transition: all 0.2s ease;
-            background: #f8fafc;
-        }
-
-        select:focus, input[type="number"]:focus {
-            border-color: var(--primary);
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
-        }
-
-        .grid-dimensions {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .grid-dimensions.thermal-active {
-            grid-template-columns: repeat(4, 1fr);
-        }
-
-        .input-hint {
-            font-size: 11px;
-            color: #64748b;
-            line-height: 1.4;
-        }
-
-        .btn-submit {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 10px;
-        }
-
-        .btn-submit:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .preview-panel {
-            background-color: var(--bg-canvas);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .view-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            background: #ffffff;
-            padding: 4px;
-            border-radius: 8px;
-            border: 1px solid #cbd5e1;
-            gap: 4px;
-        }
-
-        .view-btn {
-            padding: 6px 12px;
-            border: none;
-            background: transparent;
-            font-size: 12px;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            color: #64748b;
-        }
-
-        .view-btn.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        .canvas-container {
-            width: 100%;
-            height: 480px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        svg {
-            width: 100%;
-            height: 100%;
-            max-width: 520px;
-            max-height: 460px;
-        }
-
-        /* STYLING KHUSUS CETAK STRUK / RECEIPT */
-        @media print {
-            body {
-                background-color: #ffffff;
-                padding: 0;
-            }
-            .app-container {
-                box-shadow: none;
-                border: none;
-                display: block;
-            }
-            .preview-panel, .view-toggle, .btn-submit, .form-group select, .form-group input {
-                display: none !important;
-            }
-            .form-panel {
-                border: none;
-                padding: 0;
-                width: 100%;
-            }
-            .print-receipt-box {
-                display: block !important;
-                border: 2px solid #0f172a;
-                padding: 20px;
-                border-radius: 8px;
-                margin-top: 20px;
-            }
-        }
-
-        .print-receipt-box {
-            display: none;
-        }
-
-        @media (max-width: 850px) {
-            .app-container { grid-template-columns: 1fr; }
-            .form-panel { border-right: none; border-bottom: 1px solid #e2e8f0; }
-        }
-    </style>
+.app-container {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    overflow: hidden;
+}
+.form-panel {
+    padding: 28px 24px;
+    border-right: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.form-panel h2 {
+    font-size: 20px;
+    color: #0f172a;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.form-group > label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+}
+.form-group select, .form-group input {
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 13px;
+}
+.form-group input:focus, .form-group select:focus {
+    outline: 2px solid #0284c733;
+    border-color: var(--primary);
+}
+.grid-dimensions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 9px;
+}
+.grid-dimensions.thermal-active {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.dimension-label {
+    font-size: 11px;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+.input-hint {
+    font-size: 11px;
+    line-height: 1.5;
+    color: #64748b;
+}
+.btn-submit {
+    width: 100%;
+    padding: 13px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+}
+.btn-submit:hover {
+    background: var(--primary-hover);
+}
+.preview-panel {
+    min-width: 0;
+    background: var(--bg-canvas);
+    padding: 60px 20px 24px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.view-toggle {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    z-index: 1;
+}
+.view-btn {
+    padding: 8px 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+}
+.canvas-container {
+    width: 100%;
+    min-height: 400px;
+    height: 480px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#svg-canvas {
+    width: 100%;
+    height: 100%;
+    max-width: 650px;
+    overflow: visible;
+}
+.blueprint-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+    font-size: 11px;
+    color: #64748b;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+.print-receipt-box {
+    display: none;
+}
+@media(max-width: 850px) {
+    body {
+        padding: 12px;
+    }
+    .app-container {
+        grid-template-columns: 1fr;
+    }
+    .form-panel {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .preview-panel {
+        min-height: 430px;
+    }
+    .catalog-container {
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    }
+}
+@media(max-width: 480px) {
+    .nav-tabs {
+        flex-direction: column;
+    }
+    .modal-spec-grid {
+        grid-template-columns: 1fr;
+    }
+    .view-toggle {
+        left: 10px;
+        right: 10px;
+        justify-content: center;
+    }
+    .view-btn {
+        padding: 8px 6px;
+    }
+    .canvas-container {
+        height: 380px;
+        min-height: 330px;
+    }
+    .form-panel {
+        padding: 22px 16px;
+    }
+}
+@media print {
+    @page {
+        size: A4;
+        margin: 15mm;
+    }
+    body {
+        padding: 0;
+        background: white;
+        color: black;
+    }
+    .main-wrapper > .nav-tabs,
+    #view-katalog,
+    .preview-panel,
+    .form-panel select,
+    .form-panel input,
+    .form-panel .input-hint,
+    .form-panel .btn-submit,
+    .form-panel > .form-group {
+        display: none !important;
+    }
+    #view-custom {
+        display: block !important;
+    }
+    .app-container {
+        display: block;
+        border: none;
+        box-shadow: none;
+    }
+    .form-panel {
+        display: block;
+        padding: 0;
+        border: none;
+    }
+    .form-panel h2 {
+        margin-bottom: 20px;
+    }
+    .print-receipt-box {
+        display: block !important;
+        border: 1px solid black;
+        border-radius: 8px;
+        padding: 24px;
+        line-height: 2;
+        font-size: 13px;
+    }
+    .print-receipt-box h3 {
+        margin-bottom: 15px;
+    }
+    .print-note {
+        margin-top: 25px;
+        font-size: 11px;
+    }
+}
+</style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="form-panel">
-        <h2>Custom Ukuran Tas</h2>
+<div class="main-wrapper">
+    <div class="nav-tabs">
+        <button class="tab-btn active" id="btn-tab-katalog" onclick="switchTab('katalog')">Katalog Produk & Warna</button>
+        <button class="tab-btn" id="btn-tab-custom" onclick="switchTab('custom')">Kalkulator & Blueprint</button>
+    </div>
 
-        <div class="form-group">
-            <label for="model">Model Tas</label>
-            <select id="model" onchange="handleModelChange()">
-                <option value="hbpa">HBPA (Box Automatic 3D)</option>
-                <option value="thermal">Thermal Box / Insulasi (Chagee Style)</option>
-                <option value="hls">HLS (Handle Lipat Samping)</option>
-                <option value="dcut">D-Cut (Plong Flat / Tanpa Gusset)</option>
-                <option value="wcut">W-Cut (Model Kresek / V-Fold Side)</option>
-            </select>
+    <section class="section-view active" id="view-katalog">
+        <div class="page-heading">
+            <h2>Katalog Model Tas & Pilihan Warna Jinly</h2>
+            <p>Pilih warna kain atau klik card produk untuk melihat tampilan pop-up card besar berisi gambar, pilihan warna, spesifikasi, dan daftar harga.</p>
         </div>
+        <div class="catalog-container" id="catalog-grid"></div>
+    </section>
 
-        <div class="form-group">
-            <label>Dimensi Tas (cm)</label>
-            <div class="grid-dimensions" id="grid-dim">
-                <div>
-                    <label style="font-size: 11px;">Panjang (P)</label>
-                    <input type="number" id="panjang" value="25" min="10" max="100" 
-                           onkeydown="preventNegative(event)" 
-                           oninput="processUpdate()" 
-                           onblur="validateOnBlur('panjang', 25, 10, 100)">
+    <section class="section-view" id="view-custom">
+        <div class="app-container">
+            <div class="form-panel">
+                <h2>Custom Ukuran Tas</h2>
+
+                <div class="form-group">
+                    <label for="model">Model Tas</label>
+                    <select id="model">
+                        <option value="hbpa">HBPA (Box Automatic 3D)</option>
+                        <option value="thermal">Thermal Box (Chagee Style)</option>
+                        <option value="hls">HLS (Handle Lipat Samping)</option>
+                        <option value="dcut">D-Cut (Plong Flat)</option>
+                        <option value="wcut">W-Cut (Model Kresek)</option>
+                    </select>
                 </div>
-                <div>
-                    <label style="font-size: 11px;">Tinggi (T)</label>
-                    <input type="number" id="tinggi" value="35" min="10" max="100" 
-                           onkeydown="preventNegative(event)" 
-                           oninput="processUpdate()" 
-                           onblur="validateOnBlur('tinggi', 35, 10, 100)">
+
+                <div class="form-group">
+                    <label>Dimensi Tas (cm)</label>
+                    <div class="grid-dimensions" id="grid-dim">
+                        <div>
+                            <label class="dimension-label" for="panjang">Panjang (P)</label>
+                            <input type="number" id="panjang" value="25" min="10" max="100" step="1">
+                        </div>
+                        <div>
+                            <label class="dimension-label" for="tinggi">Tinggi (T)</label>
+                            <input type="number" id="tinggi" value="35" min="10" max="100" step="1">
+                        </div>
+                        <div id="wrapper-lebar">
+                            <label class="dimension-label" for="lebar">Lebar (L)</label>
+                            <input type="number" id="lebar" value="12" min="0" max="50" step="1">
+                        </div>
+                        <div id="wrapper-flap" hidden>
+                            <label class="dimension-label" for="flap" style="color:var(--thermal-accent)">Penutup</label>
+                            <input type="number" id="flap" value="5" min="1" max="25" step="1">
+                        </div>
+                    </div>
+                    <span class="input-hint">Panjang, tinggi, dan lebar menggunakan sentimeter. Model D-Cut tidak menggunakan gusset.</span>
                 </div>
-                <div>
-                    <label style="font-size: 11px;">Lebar (L)</label>
-                    <input type="number" id="lebar" value="12" min="0" max="50" 
-                           onkeydown="preventNegative(event)" 
-                           oninput="processUpdate()" 
-                           onblur="validateOnBlur('lebar', 12, 0, 50)">
+
+                <div class="form-group" id="group-tali">
+                    <label for="tali">Panjang Tali / Handle (cm)</label>
+                    <input type="number" id="tali" value="50" min="20" max="120" step="1">
+                    <span class="input-hint">Panjang total loop tali jinjing. Nilai ini merupakan parameter visual, bukan pola potong produksi.</span>
                 </div>
-                <div id="wrapper-flap" style="display: none;">
-                    <label style="font-size: 11px; color: var(--thermal-accent); font-weight:700;">Penutup (+T)</label>
-                    <input type="number" id="flap" value="5" min="1" max="25" 
-                           style="border-color: var(--thermal-accent); background-color: #fefce8;"
-                           onkeydown="preventNegative(event)" 
-                           oninput="processUpdate()" 
-                           onblur="validateOnBlur('flap', 5, 1, 25)">
+
+                <div class="form-group">
+                    <label for="custom-color">Warna Kain</label>
+                    <select id="custom-color"></select>
+                </div>
+
+                <button class="btn-submit" onclick="printReceipt()">Cetak / Simpan Struk Konfigurasi</button>
+
+                <div class="print-receipt-box" id="receipt-box">
+                    <h3>STRUK SPESIFIKASI TAS</h3>
+                    <p><strong>Model:</strong> <span id="r-model"></span></p>
+                    <p><strong>Panjang:</strong> <span id="r-p"></span> cm</p>
+                    <p><strong>Tinggi:</strong> <span id="r-t"></span> cm</p>
+                    <p><strong>Lebar / Gusset:</strong> <span id="r-l"></span> cm</p>
+                    <p id="r-flap-row"><strong>Tinggi penutup:</strong> <span id="r-flap"></span> cm</p>
+                    <p id="r-tali-row"><strong>Panjang tali:</strong> <span id="r-tali"></span> cm</p>
+                    <p><strong>Warna kain:</strong> <span id="r-color"></span></p>
+                    <p class="print-note">Dokumen konfigurasi awal. Verifikasi pola potong, toleransi, sambungan, dan spesifikasi bahan sebelum produksi.</p>
+                </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="view-toggle">
+                    <button class="view-btn active" id="btn-3d" onclick="setViewMode('3d')">Sketsa 3D</button>
+                    <button class="view-btn" id="btn-2d" onclick="setViewMode('2d')">Tampak Depan 2D</button>
+                </div>
+                <div class="canvas-container">
+                    <svg id="svg-canvas" viewBox="0 0 560 460" role="img" aria-label="Blueprint tas dengan ukuran"></svg>
+                </div>
+                <div class="blueprint-legend">
+                    <div class="legend-item"><span class="legend-dot" style="background:#0284c7"></span> Tali / handle</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#e11d48"></span> Garis gusset</div>
+                    <div class="legend-item"><span class="legend-dot" style="background:#ca8a04"></span> Penutup thermal</div>
                 </div>
             </div>
         </div>
+    </section>
+</div>
 
-        <!-- INPUT PANJANG TALI (DEFAULT 50 CM) -->
-        <div class="form-group" id="group-tali">
-            <label for="tali">Panjang Tali / Handle (cm)</label>
-            <input type="number" id="tali" value="50" min="20" max="120" 
-                   onkeydown="preventNegative(event)" 
-                   oninput="processUpdate()" 
-                   onblur="validateOnBlur('tali', 50, 20, 120)">
-            <span class="input-hint" id="tali-hint">*Panjang total loop tali jinjing (standar 50 cm).</span>
+<!-- Modal Pop-Up Card Membesar -->
+<div class="modal-overlay" id="productModal" onclick="closeModalOutside(event)">
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <button class="modal-close" onclick="closeModal()" aria-label="Tutup detail">&times;</button>
+        
+        <!-- Wujud Card yang Membesar (Menyatu dengan Gambar, Warna, dan Detail di Bawahnya) -->
+        <div class="modal-expanded-card">
+            <div class="modal-img-box" id="modalPreviewBox"></div>
+            <div class="modal-title" id="modalTitle">Detail Produk</div>
+            <div class="catalog-desc" id="modalDesc"></div>
+            
+            <div class="color-picker-group">
+                <div class="color-label-row">
+                    <span>Warna kain:</span>
+                    <span id="modalSelectedColorName">Putih (PT)</span>
+                </div>
+                <div class="swatches" id="modalSwatchesContainer" onclick="event.stopPropagation()"></div>
+            </div>
+
+            <div class="modal-spec-grid">
+                <div class="spec-item">Ukuran<span id="modalUkuran">-</span></div>
+                <div class="spec-item">Ketebalan bahan<span id="modalGsm">-</span></div>
+                <div class="spec-item">Minimal order custom<span id="modalMinOrder">200 pcs</span></div>
+                <div class="spec-item">Estimasi pengerjaan<span id="modalPengerjaan">14 hari kerja</span></div>
+            </div>
+
+            <h3 style="font-size:14px;color:#0f172a;margin-top:4px;">Daftar Harga Berdasarkan Kuantitas dan Sablon</h3>
+            <div style="overflow-x:auto">
+                <table class="price-table">
+                    <thead>
+                        <tr><th>Sisi & Warna Sablon</th><th>Kuantitas</th><th>Harga / pcs</th></tr>
+                    </thead>
+                    <tbody id="modalPriceTableBody"></tbody>
+                </table>
+            </div>
+            <p class="input-hint">Harga merupakan data referensi yang dimasukkan pada katalog, bukan penawaran harga real-time.</p>
         </div>
 
-        <button class="btn-submit" onclick="printReceipt()">Cetak / Simpan Struk Konfigurasi</button>
-
-        <!-- STRUK KHUSUS CETAK -->
-        <div class="print-receipt-box" id="receipt-box">
-            <h3 style="margin-bottom: 10px; border-bottom: 1px solid #0f172a; padding-bottom: 5px;">STRUK SPESIFIKASI TAS</h3>
-            <p><strong>Model Tas:</strong> <span id="r-model">HBPA</span></p>
-            <p><strong>Panjang (P):</strong> <span id="r-p">25</span> cm</p>
-            <p><strong>Tinggi (T):</strong> <span id="r-t">35</span> cm</p>
-            <p><strong>Lebar / Gusset (L):</strong> <span id="r-l">12</span> cm</p>
-            <p id="r-flap-row" style="display:none;"><strong>Tinggi Penutup (+T):</strong> <span id="r-flap">5</span> cm</p>
-            <p id="r-tali-row"><strong>Panjang Tali:</strong> <span id="r-tali">50</span> cm</p>
-            <p style="margin-top: 15px; font-size: 11px; color: #64748b;">Dicetak dari Kalkulator Manufaktur Tas Presisi</p>
-        </div>
-    </div>
-
-    <div class="preview-panel">
-        <div class="view-toggle">
-            <button class="view-btn active" id="btn-3d" onclick="setViewMode('3d')">Sketsa 3D Realistis</button>
-            <button class="view-btn" id="btn-2d" onclick="setViewMode('2d')">Tampak Depan (2D)</button>
-        </div>
-
-        <div class="canvas-container">
-            <svg id="svg-canvas" viewBox="0 0 500 450" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f172a"/>
-                    </marker>
-                    <marker id="arrow-red" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#e11d48"/>
-                    </marker>
-                    <marker id="arrow-yellow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#ca8a04"/>
-                    </marker>
-                    <marker id="arrow-blue" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#0284c7"/>
-                    </marker>
-                </defs>
-                <g id="drawing-layer"></g>
-            </svg>
-        </div>
     </div>
 </div>
 
 <script>
-    let currentViewMode = '3d';
+const SVG_NS = "http://www.w3.org/2000/svg";
 
-    function preventNegative(e) {
-        if (e.key === '-' || e.key === 'e' || e.key === 'E') {
-            e.preventDefault();
-        }
+const catalogData = [
+    {
+        id: "hbpa",
+        title: "HBPA (Box Automatic 3D)",
+        desc: "Tas box tegak dengan alas dan samping penuh.",
+        ukuran: "25 x 12 x 35 cm",
+        gsm: "75 GSM",
+        prices: [
+            ["Polos", "<200 pcs", "Rp 4.300"],
+            ["Polos", "200–499 pcs", "Rp 4.085"],
+            ["Polos", "500–999 pcs", "Rp 3.881"],
+            ["1 sisi - 1 warna", "<200 pcs", "Rp 4.700"],
+            ["1 sisi - 1 warna", "200–499 pcs", "Rp 4.485"],
+            ["2 sisi - 1 warna", "<200 pcs", "Rp 5.200"],
+            ["2 sisi - 2 warna", "<200 pcs", "Rp 5.300"]
+        ]
+    },
+    {
+        id: "thermal",
+        title: "Thermal Box (Chagee Style)",
+        desc: "Tas thermal berbentuk tenda dengan sisi samping segitiga dan flap emas di atas.",
+        ukuran: "30 x 15 x 35 cm + flap",
+        gsm: "85 GSM (insulasi)",
+        prices: [
+            ["Polos", "<200 pcs", "Rp 5.500"],
+            ["Polos", "200–499 pcs", "Rp 5.200"],
+            ["1 sisi - 1 warna", "<200 pcs", "Rp 6.000"],
+            ["2 sisi - 1 warna", "<200 pcs", "Rp 6.500"]
+        ]
+    },
+    {
+        id: "hls",
+        title: "HLS (Handle Lipat Samping)",
+        desc: "Tas dengan lipatan samping dan bagian dasar.",
+        ukuran: "30 x 7 x 40 cm",
+        gsm: "75 GSM",
+        prices: [
+            ["Polos", "<200 pcs", "Rp 4.500"],
+            ["Polos", "200–499 pcs", "Rp 4.275"],
+            ["1 sisi - 1 warna", "<200 pcs", "Rp 4.900"],
+            ["2 sisi - 1 warna", "<200 pcs", "Rp 5.400"],
+            ["2 sisi - 2 warna", "<200 pcs", "Rp 5.500"]
+        ]
+    },
+    {
+        id: "dcut",
+        title: "D-Cut (Plong Flat)",
+        desc: "Tas datar tanpa gusset dengan lubang pegangan.",
+        ukuran: "25 x 35 cm (tanpa gusset)",
+        gsm: "75 GSM",
+        prices: [
+            ["Polos", "<200 pcs", "Rp 2.000"],
+            ["Polos", "200–499 pcs", "Rp 1.900"],
+            ["1 sisi - 1 warna", "<200 pcs", "Rp 2.250"],
+            ["2 sisi - 1 warna", "<200 pcs", "Rp 2.600"],
+            ["2 sisi - 2 warna", "<200 pcs", "Rp 2.850"]
+        ]
+    },
+    {
+        id: "wcut",
+        title: "W-Cut (Model Kresek)",
+        desc: "Tas model kresek dengan pegangan potong menyatu.",
+        ukuran: "30 x 40 cm (V-Fold)",
+        gsm: "75 GSM",
+        prices: [
+            ["Polos", "<200 pcs", "Rp 2.500"],
+            ["Polos", "200–499 pcs", "Rp 2.375"],
+            ["1 sisi - 1 warna", "<200 pcs", "Rp 2.750"],
+            ["2 sisi - 1 warna", "<200 pcs", "Rp 3.100"],
+            ["2 sisi - 2 warna", "<200 pcs", "Rp 3.350"]
+        ]
     }
+];
 
-    function validateOnBlur(elementId, defaultValue, minVal, maxVal) {
-        const input = document.getElementById(elementId);
-        let val = parseFloat(input.value);
+const jinlyColors = [
+    {code:"PT",name:"Putih",hex:"#ffffff"},
+    {code:"CR",name:"Cream",hex:"#fdf6e2"},
+    {code:"KG",name:"Kuning",hex:"#ffd700"},
+    {code:"OR",name:"Orange",hex:"#ff7f00"},
+    {code:"MT",name:"Merah Tua",hex:"#cc0000"},
+    {code:"PF",name:"Pink Fanta",hex:"#ff1493"},
+    {code:"LP",name:"Light Pink",hex:"#ffb6c1"},
+    {code:"UG",name:"Ungu",hex:"#8a2be2"},
+    {code:"BN",name:"Biru Navy",hex:"#000080"},
+    {code:"BP",name:"Biru Persib",hex:"#1e90ff"},
+    {code:"BL",name:"Biru Langit",hex:"#87ceeb"},
+    {code:"TG",name:"Tosca",hex:"#008b8b"},
+    {code:"HS",name:"Hijau Sedang",hex:"#228b22"},
+    {code:"SG",name:"Hijau Stabilo",hex:"#adff2f"},
+    {code:"BHD",name:"Bottle Dark Green",hex:"#004d40"},
+    {code:"CM",name:"Coklat Moka",hex:"#b8860b"},
+    {code:"AT",name:"Abu Tua",hex:"#708090"},
+    {code:"CT",name:"Coklat Tua",hex:"#5c4033"},
+    {code:"HT",name:"Hitam",hex:"#111111"},
+    {code:"MR",name:"Maroon",hex:"#800000"}
+];
 
-        if (isNaN(val) || input.value.trim() === '') {
-            input.value = defaultValue;
-        } else if (val < minVal) {
-            input.value = minVal;
-        } else if (val > maxVal) {
-            input.value = maxVal;
-        }
-        processUpdate();
-    }
+const selectedCatalogColors = {};
+let currentViewMode = "3d";
+let currentModalModel = null;
 
-    function getValueForRender(elementId, fallback) {
-        const val = parseFloat(document.getElementById(elementId).value);
-        return isNaN(val) ? fallback : Math.max(0, val);
-    }
+function el(id) {
+    return document.getElementById(id);
+}
 
-    function handleModelChange() {
-        const model = document.getElementById('model').value;
-        const lebarInput = document.getElementById('lebar');
-        const wrapperFlap = document.getElementById('wrapper-flap');
-        const gridDim = document.getElementById('grid-dim');
-        const groupTali = document.getElementById('group-tali');
-        const taliInput = document.getElementById('tali');
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+    })[char]);
+}
 
-        if (model === 'thermal') {
-            wrapperFlap.style.display = 'block';
-            gridDim.classList.add('thermal-active');
-            lebarInput.disabled = false;
-            if (parseFloat(lebarInput.value) === 0 || lebarInput.value === '') lebarInput.value = 12;
-        } else {
-            wrapperFlap.style.display = 'none';
-            gridDim.classList.remove('thermal-active');
+function colorText(hex) {
+    const value = hex.replace("#", "");
+    const r = parseInt(value.substring(0,2),16);
+    const g = parseInt(value.substring(2,4),16);
+    const b = parseInt(value.substring(4,6),16);
+    return (r * 299 + g * 587 + b * 114) / 1000 > 145
+        ? "#0f172a"
+        : "#ffffff";
+}
 
-            if (model === 'dcut') {
-                lebarInput.value = 0;
-                lebarInput.disabled = true;
-            } else {
-                lebarInput.disabled = false;
-                if (parseFloat(lebarInput.value) === 0 || lebarInput.value === '') lebarInput.value = 12;
-            }
-        }
+function bagSVG(model, color, id) {
+    const thermal = model.id === "thermal";
+    const dcut = model.id === "dcut";
+    const wcut = model.id === "wcut";
+    const hls = model.id === "hls";
+    const front = color.hex;
+    const side = thermal ? "#e2e8f0" : shadeColor(color.hex, -15);
+    const top = shadeColor(color.hex, 12);
+    let shape = "";
 
-        if (model === 'dcut') {
-            groupTali.style.display = 'none';
-        } else {
-            groupTali.style.display = 'flex';
-            if (parseFloat(taliInput.value) === 0 || taliInput.value === '') taliInput.value = 50;
-        }
+    if (dcut) {
+        shape = `
+            <path d="M55 70 L245 70 L245 240 L55 240 Z"
+                fill="${front}" stroke="#334155" stroke-width="2"/>
+            <ellipse cx="150" cy="88" rx="28" ry="9"
+                fill="#f8fafc" stroke="#334155" stroke-width="2"/>
+        `;
+    } else if (wcut) {
+        shape = `
+            <!-- Bayangan lantai -->
+            <ellipse cx="150" cy="262" rx="95" ry="9" fill="#cbd5e1" opacity="0.6"/>
 
-        processUpdate();
-    }
+            <!-- Badan tas W-cut (handle + leher + tab) -->
+            <path d="M75 255 L75 35 L108 35
+                    C108 70 112 92 132 98
+                    L135 78 Q150 55 165 78
+                    L168 98
+                    C188 92 192 70 192 35
+                    L225 35 L225 255 Z"
+                fill="${front}" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
 
-    function setViewMode(mode) {
-        currentViewMode = mode;
-        document.getElementById('btn-3d').classList.toggle('active', mode === '3d');
-        document.getElementById('btn-2d').classList.toggle('active', mode === '2d');
-        processUpdate();
-    }
+            <!-- Lubang/kancing di tab -->
+            <circle cx="150" cy="80" r="5"
+                fill="#f1f5f9" stroke="#475569" stroke-width="1.5"/>
 
-    function processUpdate() {
-        const modelSelect = document.getElementById('model');
-        const model = modelSelect.value;
-        const P = getValueForRender('panjang', 25);
-        const T = getValueForRender('tinggi', 35);
-        const L = (model === 'dcut') ? 0 : getValueForRender('lebar', 12);
-        const Flap = (model === 'thermal') ? getValueForRender('flap', 5) : 0;
-        const Tali = (model === 'dcut') ? 0 : getValueForRender('tali', 50);
+            <!-- Jahitan bawah -->
+            <path d="M75 249 L225 249"
+                fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="3 2"/>
+        `;
+    } else if (thermal) {
+        // Bentuk tenda: flap emas tebal di atas, panel depan tinggi, sisi samping segitiga
+       shape = `
+            <!-- Sisi Samping Segitiga -->
+            <path d="M203 85 L246 225 L165 252 Z"
+                fill="${side}" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
 
-        // Update teks struk tersembunyi
-        document.getElementById('r-model').innerText = modelSelect.options[modelSelect.selectedIndex].text;
-        document.getElementById('r-p').innerText = P;
-        document.getElementById('r-t').innerText = T;
-        document.getElementById('r-l').innerText = L;
-        document.getElementById('r-tali').innerText = Tali;
 
-        const flapRow = document.getElementById('r-flap-row');
-        if (model === 'thermal') {
-            flapRow.style.display = 'block';
-            document.getElementById('r-flap').innerText = Flap;
-        } else {
-            flapRow.style.display = 'none';
-        }
+            <!-- Panel Depan Utama -->
+            <path d="M50 81 L203 85 L165 252 L29 232 Z"
+                fill="${front}" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M50 81 L203 85 L165 252 L29 232 Z"
+                fill="url(#bg-${id})" pointer-events="none"/>
 
-        document.getElementById('r-tali-row').style.display = (model === 'dcut') ? 'none' : 'block';
-
-        renderSVGBlueprint(P, T, L, Flap, Tali, model, currentViewMode);
-    }
-
-    function printReceipt() {
-        window.print();
-    }
-
-    function renderSVGBlueprint(P, T, L, FlapVal, TaliVal, model, mode) {
-        const layer = document.getElementById('drawing-layer');
-        layer.innerHTML = '';
-
-        const centerX = 230;
-        const centerY = 245;
-
-        const totalTinggiProp = T + FlapVal;
-        const maxDimension = Math.max(P, totalTinggiProp, L, 10);
-        const scale = Math.min(180 / maxDimension, 4.2);
-
-        const w = P * scale;
-        const h = T * scale;
-        const d = L * scale;
-        const flapH = FlapVal * scale;
-
-        if (mode === '3d') {
-            const angle = 0.45; 
-            const dx = Math.cos(angle) * d * 0.7;
-            const dy = Math.sin(angle) * d * 0.7;
-
-            const x0 = centerX - (w / 2) + (dx / 2);
-            const y0 = centerY + (h / 2) - 15;
-
-            if (model === 'hls') {
-                const pFront = [
-                    {x: x0, y: y0},
-                    {x: x0 + w, y: y0},
-                    {x: x0 + w, y: y0 - h},
-                    {x: x0, y: y0 - h}
-                ];
-
-                const pSideTop = {x: x0 - dx, y: y0 - h - dy};
-
-                drawLine(layer, pSideTop.x, pSideTop.y, pSideTop.x + w, pSideTop.y, '#cbd5e1', 1.5, "4,4");
-                drawLine(layer, pSideTop.x + w, pSideTop.y, pFront[1].x, pFront[1].y, '#cbd5e1', 1.5, "4,4");
-
-                drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pFront[1].x},${pFront[1].y} ${pFront[2].x},${pFront[2].y} ${pFront[3].x},${pFront[3].y}`, 'rgba(255,255,255,0.95)', '#0f172a', 2);
-
-                if (L > 0) {
-                    drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pSideTop.x},${pSideTop.y} ${pFront[3].x},${pFront[3].y}`, 'rgba(248,250,252,0.88)', '#0f172a', 2);
-                    drawLine(layer, pFront[0].x, pFront[0].y, (pFront[3].x + pSideTop.x) / 2, pFront[3].y - (dy / 2), '#64748b', 1.5, "4,4");
-                }
-
-                drawHandles(layer, pFront, {x: pSideTop.x, y: pSideTop.y}, model, scale, L, true, 0, TaliVal);
-                drawLine(layer, pFront[0].x, pFront[0].y - 4, pFront[1].x, pFront[1].y - 4, '#64748b', 1.5, "3,3");
-
-                drawDimensionArrow(layer, pFront[0].x, pFront[0].y + 18, pFront[1].x, pFront[1].y + 18, `${P} cm`, 'bottom');
-                drawDimensionArrow(layer, pFront[1].x + 18, pFront[1].y, pFront[2].x + 18, pFront[2].y, `${T} cm`, 'right');
-                if (L > 0) {
-                    drawDimensionArrow(layer, pSideTop.x - 20, pSideTop.y, pFront[3].x - 20, pFront[3].y, `${L} cm`, 'left');
-                }
-
-            } else if (model === 'thermal') {
-                const pFront = [
-                    {x: x0, y: y0},
-                    {x: x0 + w, y: y0},
-                    {x: x0 + w, y: y0 - h},
-                    {x: x0, y: y0 - h}
-                ];
-
-                const pSide = [
-                    {x: x0 - dx, y: y0 - dy},
-                    {x: x0 - dx, y: y0 - h - dy}
-                ];
-
-                const pBackRight = {x: x0 + w - dx, y: y0 - dy};
-                const pBackRightTop = {x: x0 + w - dx, y: y0 - h - dy};
-
-                drawLine(layer, pSide[0].x, pSide[0].y, pBackRight.x, pBackRight.y, '#94a3b8', 1.5, "4,4");
-                drawLine(layer, pBackRight.x, pBackRight.y, pFront[1].x, pFront[1].y, '#94a3b8', 1.5, "4,4");
-                drawLine(layer, pBackRight.x, pBackRight.y, pBackRightTop.x, pBackRightTop.y, '#94a3b8', 1.5, "4,4");
-
-                drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pFront[1].x},${pFront[1].y} ${pFront[2].x},${pFront[2].y} ${pFront[3].x},${pFront[3].y}`, 'rgba(255,255,255,0.95)', '#0f172a', 2);
-                
-                if (L > 0) {
-                    drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pSide[0].x},${pSide[0].y} ${pSide[1].x},${pSide[1].y} ${pFront[3].x},${pFront[3].y}`, 'rgba(248,250,252,0.88)', '#0f172a', 2);
-                }
-
-                const flapFront = [
-                    {x: pFront[3].x, y: pFront[3].y},
-                    {x: pFront[2].x, y: pFront[2].y},
-                    {x: pFront[2].x, y: pFront[2].y - flapH},
-                    {x: pFront[3].x, y: pFront[3].y - flapH}
-                ];
-                drawPolygon(layer, `${flapFront[0].x},${flapFront[0].y} ${flapFront[1].x},${flapFront[1].y} ${flapFront[2].x},${flapFront[2].y} ${flapFront[3].x},${flapFront[3].y}`, '#fef08a', '#ca8a04', 2);
-                drawLine(layer, flapFront[0].x, flapFront[0].y, flapFront[1].x, flapFront[1].y, '#ca8a04', 2, "4,2");
-
-                drawHandles(layer, pFront, pSide, model, scale, L, true, flapH, TaliVal);
-
-                drawDimensionArrow(layer, pFront[0].x, pFront[0].y + 18, pFront[1].x, pFront[1].y + 18, `${P} cm`, 'bottom');
-                drawDimensionArrow(layer, pFront[1].x + 18, pFront[1].y, pFront[2].x + 18, pFront[2].y, `${T} cm`, 'right');
-                drawDimensionArrow(layer, pFront[2].x + 18, pFront[2].y, pFront[2].x + 18, pFront[2].y - flapH, `+${FlapVal} cm`, 'right', '#ca8a04', 'arrow-yellow');
-
-                if (L > 0) {
-                    drawDimensionArrow(layer, pSide[0].x - 20, pSide[0].y + 8, pFront[0].x - 20, pFront[0].y + 8, `${L} cm`, 'left');
-                }
-
-            } else {
-                const pFront = [
-                    {x: x0, y: y0},
-                    {x: x0 + w, y: y0},
-                    {x: x0 + w, y: y0 - h},
-                    {x: x0, y: y0 - h}
-                ];
-
-                const pSide = [
-                    {x: x0 - dx, y: y0 - dy},
-                    {x: x0 - dx, y: y0 - h - dy}
-                ];
-
-                const pBackRight = {x: x0 + w - dx, y: y0 - dy};
-                const pBackRightTop = {x: x0 + w - dx, y: y0 - h - dy};
-
-                if (L > 0) {
-                    drawLine(layer, pSide[0].x, pSide[0].y, pBackRight.x, pBackRight.y, '#94a3b8', 1.5, "4,4");
-                    drawLine(layer, pBackRight.x, pBackRight.y, pFront[1].x, pFront[1].y, '#94a3b8', 1.5, "4,4");
-                    drawLine(layer, pBackRight.x, pBackRight.y, pBackRightTop.x, pBackRightTop.y, '#94a3b8', 1.5, "4,4");
-                    drawLine(layer, pSide[1].x, pSide[1].y, pBackRightTop.x, pBackRightTop.y, '#94a3b8', 1.5, "4,4");
-                    drawLine(layer, pBackRightTop.x, pBackRightTop.y, pFront[2].x, pFront[2].y, '#94a3b8', 1.5, "4,4");
-                }
-
-                drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pFront[1].x},${pFront[1].y} ${pFront[2].x},${pFront[2].y} ${pFront[3].x},${pFront[3].y}`, 'rgba(255,255,255,0.95)', '#0f172a', 2);
-
-                if (L > 0) {
-                    drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pSide[0].x},${pSide[0].y} ${pSide[1].x},${pSide[1].y} ${pFront[3].x},${pFront[3].y}`, 'rgba(248,250,252,0.88)', '#0f172a', 2);
+           <!-- Flap / Penutup Kuning Berbentuk Persegi Panjang di Atas -->
+           <path d="M50 81 L203 85 L196.2 115 L45.8 111 Z"
+                fill="#ecd48a" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
                     
-                    if (model === 'wcut') {
-                        const midX = (pFront[0].x + pSide[0].x) / 2;
-                        const midY = (pFront[0].y + pSide[0].y) / 2;
-                        drawLine(layer, midX, midY, midX, pFront[3].y - (dy / 2), '#0f172a', 1.5, "3,3");
-                    }
-                }
+                `;
+    } else if (hls) {
+        // Depan: persegi panjang rata. Samping: gusset lipat, bawah dijahit (sempit), atas melebar
+        // Belakang: dinding dalam tas terlihat di atas panel depan agar tampak 3D
+        const back = shadeColor(front, -10);
+        shape = `
+            <!-- Dinding belakang (terlihat dari bukaan atas) -->
+            <path d="M55 70 L85 56 L245 56 L215 70 Z"
+                fill="${back}" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
 
-                drawHandles(layer, pFront, pSide, model, scale, L, true, 0, TaliVal);
+            <!-- Handle -->
+            <path d="M95 74 L95 50 Q135 20 175 50 L175 74"
+                fill="none" stroke="#0284c7" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
 
-                drawDimensionArrow(layer, pFront[0].x, pFront[0].y + 18, pFront[1].x, pFront[1].y + 18, `${P} cm`, 'bottom');
-                drawDimensionArrow(layer, pFront[1].x + 18, pFront[1].y, pFront[2].x + 18, pFront[2].y, `${T} cm`, 'right');
-                if (L > 0) {
-                    drawDimensionArrow(layer, pSide[0].x - 20, pSide[0].y + 8, pFront[0].x - 20, pFront[0].y + 8, `${L} cm`, 'left');
-                }
-            }
+            <!-- Panel depan: persegi panjang -->
+            <path d="M55 70 L215 70 L215 240 L55 240 Z"
+                fill="${front}" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
 
+            <!-- Gusset samping: atas lebar, bawah menyempit (dijahit) -->
+            <path d="M215 70 L245 56 L222 238 L215 240 Z"
+                fill="${side}" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
+
+            <!-- Garis lipatan tengah gusset -->
+            <path d="M230 63 L218.5 239"
+                fill="none" stroke="#475569" stroke-width="1" stroke-opacity="0.6" stroke-linecap="round"/>
+
+            <!-- Garis halus tepi atas panel depan (ketebalan bahan) -->
+            <path d="M57 75 L213 75"
+                fill="none" stroke="#475569" stroke-width="1" stroke-opacity="0.35"/>
+
+            <!-- Jahitan bawah -->
+            <path d="M55 232 L215 232"
+                fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="3 2"/>
+        `;
+    } else {
+        shape = `
+            <path d="M55 95 L83 76 L273 76 L245 95 Z"
+                fill="${top}" stroke="#334155" stroke-width="2"/>
+            <path d="M245 95 L273 76 L273 221 L245 240 Z"
+                fill="${side}" stroke="#334155" stroke-width="2"/>
+            <path d="M55 95 L245 95 L245 240 L55 240 Z"
+                fill="${front}" stroke="#334155" stroke-width="2"/>
+            <path d="M115 95 L115 55 Q150 25 185 55 L185 95"
+                fill="none" stroke="#0284c7" stroke-width="8"/>
+        `;
+    }
+
+    return `
+        <svg viewBox="0 0 320 290" role="img" aria-label="${escapeHTML(model.title)} warna ${escapeHTML(color.name)}">
+            <defs>
+                <linearGradient id="bg-${id}" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity=".45"/>
+                    <stop offset="100%" stop-color="#0f172a" stop-opacity=".08"/>
+                </linearGradient>
+            </defs>
+            ${wcut ? "" : `<ellipse cx="150" cy="250" rx="105" ry="12" fill="#0f172a" opacity=".08"/>`}
+            ${shape}
+            ${(thermal || wcut || hls) ? "" : `<path d="M55 95 L245 95 L245 240 L55 240 Z"
+                fill="url(#bg-${id})" pointer-events="none"/>`}
+            <text x="150" y="275" text-anchor="middle" fill="#475569"
+                font-size="11">${escapeHTML(color.name)} (${escapeHTML(color.code)})</text>
+        </svg>
+    `;
+}
+
+function shadeColor(hex, percent) {
+    const num = parseInt(hex.replace("#",""),16);
+    const amount = Math.round(2.55 * percent);
+    const r = Math.max(0,Math.min(255,(num >> 16) + amount));
+    const g = Math.max(0,Math.min(255,((num >> 8) & 0xff) + amount));
+    const b = Math.max(0,Math.min(255,(num & 0xff) + amount));
+    return "#" + (0x1000000 + (r << 16) + (g << 8) + b)
+        .toString(16).slice(1);
+}
+
+function initCatalog() {
+    const grid = el("catalog-grid");
+    grid.innerHTML = "";
+
+    catalogData.forEach(item => {
+        selectedCatalogColors[item.id] = "PT";
+        const card = document.createElement("article");
+        card.className = "catalog-card";
+        card.onclick = () => openModal(item.id);
+
+        const swatches = jinlyColors.map(color => `
+            <button type="button"
+                class="swatch ${color.code === "PT" ? "active" : ""}"
+                style="background:${color.hex};--check-color:${colorText(color.hex)}"
+                title="${escapeHTML(color.name)} (${color.code})"
+                aria-label="Pilih warna ${escapeHTML(color.name)}"
+                aria-pressed="${color.code === "PT"}"
+                onclick="selectCatalogColor(event,'${item.id}','${color.code}')"></button>
+        `).join("");
+
+        card.innerHTML = `
+            <div class="catalog-img-box" id="preview-${item.id}">
+                ${bagSVG(item,jinlyColors[0],item.id)}
+            </div>
+            <div class="catalog-title">${escapeHTML(item.title)}</div>
+            <div class="click-hint">Klik untuk buka pop-up card besar</div>
+            <div class="catalog-desc">${escapeHTML(item.desc)}</div>
+            <div class="color-picker-group">
+                <div class="color-label-row">
+                    <span>Warna kain:</span>
+                    <span id="selected-color-name-${item.id}">Putih (PT)</span>
+                </div>
+                <div class="swatches" onclick="event.stopPropagation()">${swatches}</div>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+
+    el("custom-color").innerHTML = jinlyColors.map(color => `
+        <option value="${color.code}">${color.name} (${color.code})</option>
+    `).join("");
+}
+
+function selectCatalogColor(event, modelId, colorCode) {
+    event.stopPropagation();
+    selectedCatalogColors[modelId] = colorCode;
+
+    const color = jinlyColors.find(item => item.code === colorCode);
+    const model = catalogData.find(item => item.id === modelId);
+
+    el(`selected-color-name-${modelId}`).textContent = `${color.name} (${color.code})`;
+    el(`preview-${modelId}`).innerHTML = bagSVG(model, color, modelId);
+
+    const card = el(`preview-${modelId}`).closest(".catalog-card");
+    card.querySelectorAll(".swatch").forEach((button, index) => {
+        const active = jinlyColors[index].code === colorCode;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+    });
+
+    if (currentModalModel === modelId) {
+        updateModalPreview();
+    }
+}
+
+function updateModalPreview() {
+    if (!currentModalModel) return;
+    const model = catalogData.find(item => item.id === currentModalModel);
+    const colorCode = selectedCatalogColors[currentModalModel];
+    const color = jinlyColors.find(item => item.code === colorCode);
+
+    el("modalSelectedColorName").textContent = `${color.name} (${color.code})`;
+    el("modalPreviewBox").innerHTML = bagSVG(model, color, "modal-" + model.id);
+
+    const modalSwatches = el("modalSwatchesContainer").querySelectorAll(".swatch");
+    modalSwatches.forEach((button, index) => {
+        const active = jinlyColors[index].code === colorCode;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-pressed", String(active));
+    });
+}
+
+function openModal(modelId) {
+    const model = catalogData.find(item => item.id === modelId);
+    if (!model) return;
+
+    currentModalModel = modelId;
+    const colorCode = selectedCatalogColors[modelId];
+    const color = jinlyColors.find(item => item.code === colorCode);
+
+    el("modalTitle").textContent = model.title;
+    el("modalDesc").textContent = model.desc;
+    el("modalUkuran").textContent = model.ukuran;
+    el("modalGsm").textContent = model.gsm;
+
+    el("modalSwatchesContainer").innerHTML = jinlyColors.map(c => `
+        <button type="button"
+            class="swatch ${c.code === colorCode ? "active" : ""}"
+            style="background:${c.hex};--check-color:${colorText(c.hex)}"
+            title="${escapeHTML(c.name)} (${c.code})"
+            aria-label="Pilih warna ${escapeHTML(c.name)}"
+            aria-pressed="${c.code === colorCode}"
+            onclick="selectCatalogColor(event,'${model.id}','${c.code}')"></button>
+    `).join("");
+
+    updateModalPreview();
+
+    el("modalPriceTableBody").innerHTML = model.prices.map(price => `
+        <tr>
+            <td>${escapeHTML(price[0])}</td>
+            <td>${escapeHTML(price[1])}</td>
+            <td>${escapeHTML(price[2])}</td>
+        </tr>
+    `).join("");
+
+    el("productModal").classList.add("active");
+    el("productModal").setAttribute("aria-hidden","false");
+    el("modalTitle").focus?.();
+}
+
+function closeModal() {
+    el("productModal").classList.remove("active");
+    el("productModal").setAttribute("aria-hidden","true");
+    currentModalModel = null;
+}
+
+function closeModalOutside(event) {
+    if (event.target === el("productModal")) closeModal();
+}
+
+document.addEventListener("keydown", event => {
+    if (event.key === "Escape") closeModal();
+});
+
+function switchTab(tabName) {
+    document.querySelectorAll(".tab-btn").forEach(button => {
+        button.classList.remove("active");
+    });
+    document.querySelectorAll(".section-view").forEach(view => {
+        view.classList.remove("active");
+    });
+
+    el(`btn-tab-${tabName}`).classList.add("active");
+    el(`view-${tabName}`).classList.add("active");
+
+    if (tabName === "custom") processUpdate();
+}
+
+function setViewMode(mode) {
+    currentViewMode = mode;
+    el("btn-3d").classList.toggle("active",mode === "3d");
+    el("btn-2d").classList.toggle("active",mode === "2d");
+    processUpdate();
+}
+
+function readDimension(id, fallback) {
+    const input = el(id);
+    const value = Number(input.value);
+    return input.value.trim() === "" || !Number.isFinite(value)
+        ? fallback
+        : Math.max(Number(input.min),Math.min(Number(input.max),value));
+}
+
+function validateInput(input) {
+    const value = Number(input.value);
+    const min = Number(input.min);
+    const max = Number(input.max);
+
+    if (input.value.trim() === "" || !Number.isFinite(value)) {
+        input.value = input.defaultValue;
+    } else {
+        input.value = Math.max(min,Math.min(max,value));
+    }
+    processUpdate();
+}
+
+const modelDefaults = {
+    hbpa:    { panjang:25, tinggi:35, lebar:12 },
+    thermal: { panjang:30, tinggi:35, lebar:15, flap:5 },
+    hls:     { panjang:30, tinggi:40, lebar:7 },
+    dcut:    { panjang:25, tinggi:35, lebar:0 },
+    wcut:    { panjang:30, tinggi:40 }
+};
+
+function handleModelChange() {
+    const model = el("model").value;
+    const thermal = model === "thermal";
+    const dcut = model === "dcut";
+
+    Object.entries(modelDefaults[model] || {}).forEach(([id,value]) => {
+        el(id).value = value;
+    });
+
+    el("wrapper-flap").hidden = !thermal;
+    el("grid-dim").classList.toggle("thermal-active",thermal);
+    el("lebar").disabled = dcut;
+    el("lebar").value = dcut ? 0 :
+        (Number(el("lebar").value) === 0 ? 12 : el("lebar").value);
+    el("group-tali").hidden = dcut;
+
+    processUpdate();
+}
+
+function processUpdate() {
+    const model = el("model").value;
+    const P = readDimension("panjang",25);
+    const T = readDimension("tinggi",35);
+    const L = model === "dcut" ? 0 : readDimension("lebar",12);
+    const flap = model === "thermal" ? readDimension("flap",5) : 0;
+    const tali = model === "dcut" ? 0 : readDimension("tali",50);
+    const color = jinlyColors.find(item =>
+        item.code === el("custom-color").value
+    ) || jinlyColors[0];
+
+    el("r-model").textContent =
+        el("model").options[el("model").selectedIndex].text;
+    el("r-p").textContent = P;
+    el("r-t").textContent = T;
+    el("r-l").textContent = L;
+    el("r-flap").textContent = flap;
+    el("r-tali").textContent = tali;
+    el("r-color").textContent = `${color.name} (${color.code})`;
+
+    el("r-flap-row").style.display = model === "thermal" ? "block" : "none";
+    el("r-tali-row").style.display = model === "dcut" ? "none" : "block";
+
+    renderSVGBlueprint(P,T,L,flap,tali,model,currentViewMode,color);
+}
+
+function svgElement(tag, attributes = {}, parent = el("svg-canvas")) {
+    const node = document.createElementNS(SVG_NS,tag);
+    Object.entries(attributes).forEach(([key,value]) => {
+        node.setAttribute(key,String(value));
+    });
+    parent.appendChild(node);
+    return node;
+}
+
+function polygon(points, fill, stroke = "#0f172a", width = 2) {
+    return svgElement("polygon",{
+        points:points.map(p => `${p.x},${p.y}`).join(" "),
+        fill,
+        stroke,
+        "stroke-width":width,
+        "stroke-linejoin":"round"
+    });
+}
+
+function line(x1,y1,x2,y2,color="#0f172a",width=1.5,dash="") {
+    const attrs = {
+        x1,y1,x2,y2,
+        stroke:color,
+        "stroke-width":width
+    };
+    if (dash) attrs["stroke-dasharray"] = dash;
+    return svgElement("line",attrs);
+}
+
+function textSVG(x,y,value,color="#0f172a",anchor="middle",size=12) {
+    const node = svgElement("text",{
+        x,y,fill:color,
+        "font-size":size,
+        "font-weight":600,
+        "text-anchor":anchor
+    });
+    node.textContent = value;
+    return node;
+}
+
+function dimension(x1,y1,x2,y2,label,orientation,color="#0f172a") {
+    line(x1,y1,x2,y2,color,1.4);
+    const horizontal = Math.abs(y2-y1) < Math.abs(x2-x1);
+    const tick = 4;
+
+    if (horizontal) {
+        line(x1,y1-tick,x1,y1+tick,color,1.2);
+        line(x2,y2-tick,x2,y2+tick,color,1.2);
+        textSVG((x1+x2)/2,(y1+y2)/2+(orientation==="top"?-9:17),
+            label,color,"middle",11);
+    } else {
+        line(x1-tick,y1,x1+tick,y1,color,1.2);
+        line(x2-tick,y2,x2+tick,y2,color,1.2);
+        const side = orientation === "left" ? -9 : 9;
+        textSVG((x1+x2)/2+side,(y1+y2)/2,label,color,
+            orientation==="left"?"end":"start",11);
+    }
+}
+
+function drawHandle(front,model,scale,tali,color) {
+    const width = front[1].x-front[0].x;
+    const topY = front[3].y;
+    const xMid = (front[0].x+front[1].x)/2;
+    const handleH = Math.min(70,Math.max(25,tali*scale*0.25));
+    const handleW = Math.min(width*0.32,55);
+
+    if (model === "dcut") {
+        svgElement("ellipse",{
+            cx:xMid,cy:topY+14,rx:Math.min(width*0.18,22),ry:7,
+            fill:"#f8fafc",stroke:"#0f172a","stroke-width":2
+        });
+    } else if (model === "wcut") {
+        const left = front[0].x+width*0.28;
+        const right = front[1].x-width*0.28;
+        const depth = Math.min(handleH*0.45,25);
+        line(front[0].x,topY,left,topY-handleH,color,2);
+        line(left,topY-handleH,left,topY-depth,color,2);
+        line(right,topY-depth,right,topY-handleH,color,2);
+        line(right,topY-handleH,front[1].x,topY,color,2);
+        svgElement("path",{
+            d:`M ${left} ${topY-depth} Q ${xMid} ${topY+5} ${right} ${topY-depth}`,
+            fill:"none",stroke:"#0f172a","stroke-width":2
+        });
+    } else {
+        const x1 = xMid-handleW/2;
+        const x2 = xMid+handleW/2;
+        svgElement("path",{
+            d:`M ${x1} ${topY} L ${x1} ${topY-handleH}
+               Q ${xMid} ${topY-handleH-12} ${x2} ${topY-handleH}
+               L ${x2} ${topY}`,
+            fill:"none",stroke: model === "thermal" ? "#0284c7" : "#0f172a","stroke-width": model === "thermal" ? 3.5 : 3
+        });
+    }
+}
+
+function renderSVGBlueprint(P,T,L,flap,tali,model,mode,color) {
+    const svg = el("svg-canvas");
+    svg.innerHTML = "";
+
+    const defs = svgElement("defs");
+    const pattern = svgElement("linearGradient",{
+        id:"bagShade",x1:"0%",y1:"0%",x2:"100%",y2:"100%"
+    },defs);
+    svgElement("stop",{"offset":"0%","stop-color":"#ffffff","stop-opacity":".3"},pattern);
+    svgElement("stop",{"offset":"100%","stop-color":"#0f172a","stop-opacity":".07"},pattern);
+
+    const W = 560;
+    const H = 460;
+    const INK = "#0f172a";
+    const isThermal = model === "thermal";
+    const isDcut = model === "dcut";
+    const isWcut = model === "wcut";
+    const isHls = model === "hls";
+    const hasHandle = model === "hbpa" || isHls;
+
+    const depth = isDcut ? 0 : L;
+    const totalHeight = T;   // flap bagian dari tinggi T, tidak menambah tinggi tas
+    const scale = Math.min(
+        260 / P,
+        210 / totalHeight,
+        depth > 0 ? 105 / depth : 5,
+        5
+    );
+
+    const w = P*scale;
+    const h = T*scale;
+    const fh = Math.min(flap*scale,h);   // flap melebar ke bawah dari tepi atas, maksimal setinggi panel
+    const panelH = h;
+    const d = depth*scale*0.65;
+    const dx = d*0.7;
+    const dy = d*0.35;
+
+    const frontColor = color.hex;
+    const sideColor = shadeColor(color.hex,-17);
+    const topColor = shadeColor(color.hex,12);
+    const backColor = shadeColor(color.hex,-10);
+
+    function drawHandle(x,top,strokeWidth) {
+        const handleW = Math.min(w*0.3,55);
+        const hx1 = x+(w-handleW)/2;
+        const hx2 = hx1+handleW;
+        const handleH = Math.min(60,Math.max(25,tali*scale*0.22));
+        svgElement("path",{
+            d:`M ${hx1} ${top} L ${hx1} ${top-handleH}
+               Q ${(hx1+hx2)/2} ${top-handleH-12} ${hx2} ${top-handleH}
+               L ${hx2} ${top}`,
+            fill:"none",stroke:"#0284c7","stroke-width":strokeWidth,
+            "stroke-linecap":"round","stroke-linejoin":"round"
+        });
+    }
+
+    // Panel depan, bentuknya mengikuti card katalog untuk tiap model
+    function drawFront(x,y) {
+        const top = y - panelH;
+
+        if (isWcut) {
+            // Bentuk W-cut sama dengan card katalog (path diskalakan ke P x T)
+            const mx = px => x + (px-75)/150*w;
+            const my = py => top + (py-35)/220*panelH;
+            svgElement("path",{
+                d:`M ${mx(75)} ${my(255)} L ${mx(75)} ${my(35)} L ${mx(108)} ${my(35)}
+                   C ${mx(108)} ${my(70)} ${mx(112)} ${my(92)} ${mx(132)} ${my(98)}
+                   L ${mx(135)} ${my(78)} Q ${mx(150)} ${my(55)} ${mx(165)} ${my(78)}
+                   L ${mx(168)} ${my(98)}
+                   C ${mx(188)} ${my(92)} ${mx(192)} ${my(70)} ${mx(192)} ${my(35)}
+                   L ${mx(225)} ${my(35)} L ${mx(225)} ${my(255)} Z`,
+                fill:frontColor,stroke:INK,"stroke-width":2,"stroke-linejoin":"round"
+            });
+            svgElement("circle",{
+                cx:mx(150),cy:my(80),r:Math.max(2.5,Math.min(w/150,panelH/220)*5),
+                fill:"#f1f5f9",stroke:INK,"stroke-width":1.5
+            });
+            line(x,my(249),x+w,my(249),INK,1.5,"3 2");
+            return;
+        }
+
+        polygon([
+            {x,y},{x:x+w,y},{x:x+w,y:top},{x,y:top}
+        ],frontColor);
+        svgElement("rect",{
+            x,y:top,width:w,height:panelH,
+            fill:"url(#bagShade)",stroke:"none","pointer-events":"none"
+        });
+
+        if (isThermal) {
+            // Pita kuning (flap) di atas panel depan, sama seperti card katalog
+            svgElement("rect",{
+                x,y:top,width:w,height:fh,
+                fill:"#ecd48a",stroke:"#475569","stroke-width":2
+            });
+        }
+
+        if (isDcut) {
+            svgElement("ellipse",{
+                cx:x+w/2,cy:top+panelH*0.105,
+                rx:w*0.147,ry:Math.max(4,panelH*0.053),
+                fill:"#f8fafc",stroke:INK,"stroke-width":2
+            });
+        }
+
+        if (isHls) {
+            line(x,y-panelH*0.047,x+w,y-panelH*0.047,INK,1.5,"3 2");   // jahitan bawah
+        }
+
+        if (hasHandle) drawHandle(x,top,mode === "2d" ? 3 : 2.5);
+    }
+
+    if (mode === "2d") {
+        const x = (W-w)/2;
+        const y = 290;
+        const top = y - panelH;
+
+        drawFront(x,y);
+
+        if (L > 0) {
+            const fold = Math.min(d/2,w/3);
+            const foldTop = isWcut ? top + (98-35)/220*panelH : top;
+            line(x+fold,foldTop,x+fold,y,"#e11d48",1.5,"5 4");
+            line(x+w-fold,foldTop,x+w-fold,y,"#e11d48",1.5,"5 4");
+            dimension(x,y+36,x+w,y+36,`Panjang: ${P} cm`,"bottom");
+            dimension(x-20,y,x-20,y-h,`Tinggi: ${T} cm`,"left");
+            dimension(x,y+57,x+fold,y+57,`Gusset: ${L} cm`,"bottom","#e11d48");
         } else {
-            // TAMPAK DEPAN FLAT (2D BLUEPRINT)
-            const x0 = centerX - (w / 2);
-            const y0 = centerY + (h / 2) - 30;
+            dimension(x,y+36,x+w,y+36,`Panjang: ${P} cm`,"bottom");
+            dimension(x+w+20,y,x+w+20,y-h,`Tinggi: ${T} cm`,"right");
+        }
 
-            const pFront = [
-                {x: x0, y: y0},
-                {x: x0 + w, y: y0},
-                {x: x0 + w, y: y0 - h},
-                {x: x0, y: y0 - h}
-            ];
+        if (isThermal) {
+            dimension(x+w+44,top,x+w+44,top+fh,`Flap ${flap} cm`,"right","#ca8a04");
+        }
 
-            drawPolygon(layer, `${pFront[0].x},${pFront[0].y} ${pFront[1].x},${pFront[1].y} ${pFront[2].x},${pFront[2].y} ${pFront[3].x},${pFront[3].y}`, '#ffffff', '#0f172a', 2);
+        if (!isDcut) {
+            textSVG(W/2,425,`Panjang tali: ${tali} cm`,"#0284c7","middle",11);
+        }
+    } else {
+        const x = (W-w-dx)/2;
+        const y = 315;
+        const top = y - panelH;
 
-            if (model === 'thermal') {
-                drawRect(layer, pFront[3].x, pFront[3].y - flapH, w, flapH, '#fef08a', '#ca8a04', 2);
-                drawLine(layer, pFront[3].x, pFront[3].y, pFront[2].x, pFront[2].y, '#ca8a04', 2, "4,2");
+        const F1 = {x:x+w,y};
+        const F2 = {x:x+w,y:top};
+        const F3 = {x,y:top};
+        const B1 = {x:x+w+dx,y:y-dy};
+        const B2 = {x:x+w+dx,y:top-dy};
+        const B3 = {x:x+dx,y:top-dy};
+
+        if (depth > 0) {
+            if (isHls) {
+                // Dinding belakang terlihat dari bukaan atas + gusset yang menyempit ke bawah (dijahit)
+                polygon([F3,B3,B2,F2],backColor,"#475569");
+                const Bb = {x:x+w+dx*0.22,y:y-dy*0.22};
+                polygon([F2,B2,Bb,F1],sideColor,"#475569");
+                line((F2.x+B2.x)/2,(F2.y+B2.y)/2,(F1.x+Bb.x)/2,(F1.y+Bb.y)/2,
+                    "#475569",1,"");
+            } else if (isThermal) {
+                // Sisi samping segitiga seperti tenda
+                polygon([F2,F1,B1],"#e2e8f0","#475569");
+            } else if (!isDcut && !isWcut) {
+                // HBPA: box penuh dengan tutup atas dan sisi samping
+                polygon([F3,F2,B2,B3],topColor);
+                polygon([F2,F1,B1,B2],sideColor);
             }
+        }
 
-            if (L > 0) {
-                const gussetFoldWidth = Math.min((d / 2), (w / 3));
-                drawLine(layer, pFront[0].x + gussetFoldWidth, pFront[0].y, pFront[0].x + gussetFoldWidth, pFront[3].y, '#e11d48', 1.5, "4,4");
-                drawLine(layer, pFront[1].x - gussetFoldWidth, pFront[1].y, pFront[1].x - gussetFoldWidth, pFront[2].y, '#e11d48', 1.5, "4,4");
-            }
+        drawFront(x,y);
 
-            drawHandles(layer, pFront, null, model, scale, L, false, flapH, TaliVal);
+        const gussetHere = depth > 0 && !isDcut && !isWcut;
+        const heightX = gussetHere ? x-22 : x+w+22;
+        const heightSide = gussetHere ? "left" : "right";
 
-            drawDimensionArrow(layer, pFront[0].x, pFront[0].y + 18, pFront[1].x, pFront[1].y + 18, `Panjang: ${P} cm`, 'bottom');
-            drawDimensionArrow(layer, pFront[1].x + 18, pFront[1].y, pFront[2].x + 18, pFront[2].y, `Tinggi: ${T} cm`, 'right');
-            
-            if (model === 'thermal') {
-                drawDimensionArrow(layer, pFront[2].x + 18, pFront[2].y, pFront[2].x + 18, pFront[2].y - flapH, `+Penutup: ${FlapVal} cm`, 'right', '#ca8a04', 'arrow-yellow');
-            }
-
-            if (model !== 'dcut') {
-                drawDimensionArrow(layer, pFront[3].x - 45, pFront[3].y - (Math.min(50, (TaliVal / 3) * scale)), pFront[3].x - 45, pFront[3].y, `Tali: ${TaliVal} cm`, 'left', '#0284c7', 'arrow-blue');
-            }
-
-            if (L > 0) {
-                const gussetFoldWidth = Math.min((d / 2), (w / 3));
-                drawDimensionArrow(layer, pFront[0].x, pFront[0].y + 42, pFront[0].x + gussetFoldWidth, pFront[0].y + 42, `Lebar (Gusset): ${L} cm`, 'bottom', '#e11d48', 'arrow-red');
-            }
+        dimension(x,y+34,x+w,y+34,`${P} cm`,"bottom");
+        dimension(heightX,y,heightX,y-h,`${T} cm`,heightSide);
+        if (isThermal) {
+            dimension(heightX-34,top,heightX-34,top+fh,`Flap ${flap} cm`,heightSide,"#ca8a04");
+        }
+        if (gussetHere) {
+            dimension(x+w+4,y+16,x+w+dx+4,y-dy+16,`${L} cm`,"bottom","#e11d48");
         }
     }
 
-    function drawHandles(layer, pFront, pSide, model, scale, L, is3D, flapH = 0, TaliVal = 50) {
-        const topY = pFront[3].y - flapH;
-        const w = pFront[1].x - pFront[0].x;
-        const handleW = Math.min(w * 0.42, 75);
-        
-        // Proporsi tinggi tali diperhalus (dibagi 3 agar realistis tidak terlalu menjulang tinggi)
-        const handleH = Math.min(85, Math.max(24, (TaliVal / 3) * scale));
+    const info = catalogData.find(item => item.id === model);
+    textSVG(W/2,24,mode === "3d" ? "SKETSA 3D - REFERENSI VISUAL" : "BLUEPRINT 2D - TAMPAK DEPAN",
+        "#334155","middle",12);
+    textSVG(W/2,444,`${info ? info.title : model} | ${color.name} (${color.code})`,
+        "#64748b","middle",11);
+}
 
-        if (model === 'dcut') {
-            const ovalX = pFront[0].x + (w / 2);
-            const ovalY = topY + 28;
-            const rx = Math.min(w * 0.2, 22);
-            const ry = 8;
-            drawEllipse(layer, ovalX, ovalY, rx, ry, '#ffffff', '#0f172a', 2);
+function printReceipt() {
+    processUpdate();
+    window.print();
+}
 
-        } else if (model === 'wcut') {
-            const handleWidth = w * 0.22;
-            const uCutDepth = handleH * 0.45;
-            
-            const pathLeft = `M ${pFront[0].x} ${topY} L ${pFront[0].x} ${topY - handleH} L ${pFront[0].x + handleWidth} ${topY - handleH} L ${pFront[0].x + handleWidth} ${topY - handleH + uCutDepth}`;
-            const pathRight = `M ${pFront[1].x - handleWidth} ${topY - handleH + uCutDepth} L ${pFront[1].x - handleWidth} ${topY - handleH} L ${pFront[1].x} ${topY - handleH} L ${pFront[1].x} ${topY}`;
-            const centerCurve = `M ${pFront[0].x + handleWidth} ${topY - handleH + uCutDepth} Q ${pFront[0].x + (w / 2)} ${topY - handleH + uCutDepth + 10} ${pFront[1].x - handleWidth} ${topY - handleH + uCutDepth}`;
+["panjang","tinggi","lebar","flap","tali"].forEach(id => {
+    const input = el(id);
+    input.addEventListener("input",processUpdate);
+    input.addEventListener("change",() => validateInput(input));
+    input.addEventListener("keydown",event => {
+        if (["-","e","E"].includes(event.key)) event.preventDefault();
+    });
+});
 
-            drawPath(layer, pathLeft, '#ffffff', '#0f172a', 2);
-            drawPath(layer, pathRight, '#ffffff', '#0f172a', 2);
-            drawPath(layer, centerCurve, 'none', '#0f172a', 2);
+el("model").addEventListener("change",handleModelChange);
+el("custom-color").addEventListener("change",processUpdate);
 
-        } else {
-            const hx1 = pFront[0].x + (w - handleW) / 2;
-            const hx2 = hx1 + handleW;
-
-            if (is3D && pSide) {
-                const dx = pFront[3].x - pSide.x;
-                const dy = pFront[3].y - pSide.y;
-                const backPath = `M ${hx1 - dx} ${topY - dy} L ${hx1 - dx} ${topY - handleH - dy} L ${hx2 - dx} ${topY - handleH - dy} L ${hx2 - dx} ${topY - dy}`;
-                drawPath(layer, backPath, 'none', '#94a3b8', 1.5, "3,3");
-            }
-
-            const frontPath = `M ${hx1} ${topY} L ${hx1} ${topY - handleH} L ${hx2} ${topY - handleH} L ${hx2} ${topY}`;
-            drawPath(layer, frontPath, 'none', model === 'thermal' ? '#ca8a04' : '#0f172a', 2.5);
-
-            drawRect(layer, hx1 - 4, topY + 2, 8, 10, '#ffffff', '#0f172a', 1);
-            drawRect(layer, hx2 - 4, topY + 2, 8, 10, '#ffffff', '#0f172a', 1);
-        }
-    }
-
-    function drawPolygon(parent, points, fill, stroke, width) {
-        const el = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
-        el.setAttribute("points", points);
-        el.setAttribute("fill", fill);
-        el.setAttribute("stroke", stroke);
-        el.setAttribute("stroke-width", width);
-        el.setAttribute("stroke-linejoin", "round");
-        parent.appendChild(el);
-    }
-
-    function drawLine(parent, x1, y1, x2, y2, stroke, width, dash = "") {
-        const el = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        el.setAttribute("x1", x1); el.setAttribute("y1", y1);
-        el.setAttribute("x2", x2); el.setAttribute("y2", y2);
-        el.setAttribute("stroke", stroke);
-        el.setAttribute("stroke-width", width);
-        if (dash) el.setAttribute("stroke-dasharray", dash);
-        parent.appendChild(el);
-    }
-
-    function drawPath(parent, d, fill, stroke, width, dash = "") {
-        const el = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        el.setAttribute("d", d);
-        el.setAttribute("fill", fill);
-        el.setAttribute("stroke", stroke);
-        el.setAttribute("stroke-width", width);
-        el.setAttribute("stroke-linejoin", "round");
-        if (dash) el.setAttribute("stroke-dasharray", dash);
-        parent.appendChild(el);
-    }
-
-    function drawEllipse(parent, cx, cy, rx, ry, fill, stroke, width) {
-        const el = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
-        el.setAttribute("cx", cx); el.setAttribute("cy", cy);
-        el.setAttribute("rx", rx); el.setAttribute("ry", ry);
-        el.setAttribute("fill", fill);
-        el.setAttribute("stroke", stroke);
-        el.setAttribute("stroke-width", width);
-        parent.appendChild(el);
-    }
-
-    function drawRect(parent, x, y, w, h, fill, stroke, width) {
-        const el = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        el.setAttribute("x", x); el.setAttribute("y", y);
-        el.setAttribute("width", w); el.setAttribute("height", h);
-        el.setAttribute("fill", fill);
-        el.setAttribute("stroke", stroke);
-        el.setAttribute("stroke-width", width);
-        parent.appendChild(el);
-    }
-
-    function drawDimensionArrow(parent, x1, y1, x2, y2, text, align, color = '#0f172a', markerId = 'arrow') {
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", x1); line.setAttribute("y1", y1);
-        line.setAttribute("x2", x2); line.setAttribute("y2", y2);
-        line.setAttribute("stroke", color);
-        line.setAttribute("stroke-width", "1.5");
-        line.setAttribute("marker-start", `url(#${markerId})`);
-        line.setAttribute("marker-end", `url(#${markerId})`);
-        parent.appendChild(line);
-
-        const textEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        const midX = (x1 + x2) / 2;
-        const midY = (y1 + y2) / 2;
-
-        textEl.setAttribute("x", midX);
-        textEl.setAttribute("y", align === 'bottom' ? midY + 16 : (align === 'right' ? midY + 4 : midY - 8));
-        textEl.setAttribute("fill", color);
-        textEl.setAttribute("font-size", "12");
-        textEl.setAttribute("font-weight", "600");
-        textEl.setAttribute("text-anchor", align === 'right' ? 'start' : (align === 'left' ? 'end' : 'middle'));
-        if (align === 'right') textEl.setAttribute("dx", "8");
-        if (align === 'left') textEl.setAttribute("dx", "-8");
-
-        textEl.textContent = text;
-        parent.appendChild(textEl);
-    }
-
-    handleModelChange();
+initCatalog();
+handleModelChange();
 </script>
 </body>
 </html>
