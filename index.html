@@ -290,6 +290,22 @@ button {
     font-weight: 700;
     color: #0f172a;
 }
+.spec-select {
+    display: block;
+    width: 100%;
+    margin-top: 4px;
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 12px;
+    font-weight: 700;
+}
+.spec-select:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+}
 .price-table {
     width: 100%;
     border-collapse: collapse;
@@ -665,8 +681,12 @@ button {
             </div>
 
             <div class="modal-spec-grid">
-                <div class="spec-item">Ukuran<span id="modalUkuran">-</span></div>
-                <div class="spec-item">Ketebalan bahan<span id="modalGsm">-</span></div>
+                <div class="spec-item"><label for="modalUkuran">Ukuran</label>
+                    <select class="spec-select" id="modalUkuran" onchange="updateModalPrices()"></select>
+                </div>
+                <div class="spec-item"><label for="modalGsm">Ketebalan bahan</label>
+                    <select class="spec-select" id="modalGsm" onchange="updateModalPrices()"></select>
+                </div>
                 <div class="spec-item">Minimal order custom<span id="modalMinOrder">200 pcs</span></div>
                 <div class="spec-item">Estimasi pengerjaan<span id="modalPengerjaan">14 hari kerja</span></div>
             </div>
@@ -680,7 +700,7 @@ button {
                     <tbody id="modalPriceTableBody"></tbody>
                 </table>
             </div>
-            <p class="input-hint">Harga merupakan data referensi yang dimasukkan pada katalog, bukan penawaran harga real-time.</p>
+            <p class="input-hint" id="modalPriceHint">Harga per pcs dihitung dengan rumus HPP produksi EZCO (kain, laminasi, tali, cutting, dan cetak). Belum termasuk margin dan biaya media cetak (screen/silinder).</p>
         </div>
 
     </div>
@@ -1032,6 +1052,104 @@ function updateModalPreview() {
     });
 }
 
+const BAG_SIZES = [
+    {code:"S", name:"Small",  p:21, t:26, l:18},
+    {code:"N", name:"Normal", p:23, t:26, l:20},
+    {code:"L", name:"Large",  p:24, t:26, l:22}
+];
+const BAG_GSM = [60, 70, 75, 80];
+
+// Tarif dasar, sama dengan harga.html (bisa diubah lewat Admin Panel lewat localStorage "ezco_rates")
+function getRates() {
+    const defaults = {rateKain:35000, rateTali:1000, rateSilinder:2500000, rateScreen:150000};
+    try {
+        const saved = localStorage.getItem("ezco_rates");
+        if (saved) return Object.assign(defaults, JSON.parse(saved));
+    } catch (error) {}
+    return defaults;
+}
+
+// Rumus HPP per pcs dari harga.html (Standar EZCO v3.0)
+function hitungHPP({modelId, panjang, tinggi, lebar, gsm, warnaCetak, jumlahOrder}) {
+    const rates = getRates();
+    const thermal = modelId === "thermal";
+    const shape = thermal ? "hbpa" : modelId;      // thermal = HBPA + laminasi 2 sisi
+    const jenis = thermal ? "LAM2" : "DIRECT";
+    const flat = shape === "dcut" || shape === "wcut";
+
+    let lebarKain, tinggiKain, biayaJahit;
+    if (flat) {
+        lebarKain = (2*panjang) + 4.0;
+        tinggiKain = tinggi + 5.0;
+        biayaJahit = 1200;
+    } else if (shape === "hbpa") {
+        lebarKain = (2*panjang) + lebar + 5.0;
+        tinggiKain = tinggi + lebar + 5.0;
+        biayaJahit = 2200;
+    } else {   // hls
+        lebarKain = (2*panjang) + (2*lebar) + 4.0;
+        tinggiKain = tinggi + 5.0;
+        biayaJahit = 1800;
+    }
+
+    const luasKainM2 = (lebarKain * tinggiKain) / 10000.0;
+    const biayaKain = (luasKainM2 * gsm / 1000.0) * rates.rateKain;
+    const biayaLaminasi = jenis === "LAM2" ? luasKainM2 * 2500 : 0;
+    const panjangTali = 50;                          // standar HBPA 35-60 cm
+    const biayaTali = flat ? 0 : ((2*panjangTali) / 100.0) * rates.rateTali;
+    const biayaCetak = (jumlahOrder >= 1000 ? 600 : 1200) * warnaCetak;   // sablon
+
+    return biayaKain + biayaLaminasi + biayaTali + biayaJahit + biayaCetak;
+}
+
+function formatRupiah(value) {
+    return new Intl.NumberFormat("id-ID", {style:"currency", currency:"IDR", maximumFractionDigits:0}).format(value);
+}
+
+// "Polos" = 0, "1 sisi - 1 warna" = 1, "2 sisi - 1 warna" = 2, "2 sisi - 2 warna" = 4 (sisi x warna)
+function parseWarnaCetak(label) {
+    const match = /(\d+)\s*sisi\s*-\s*(\d+)\s*warna/i.exec(label);
+    return match ? parseInt(match[1],10) * parseInt(match[2],10) : 0;
+}
+
+// Batas bawah kuantitas dari label tier, misalnya "<200 pcs" -> 1 dan "200–499 pcs" -> 200
+function parseQty(label) {
+    if (label.trim().startsWith("<")) return 1;
+    const match = /(\d+)/.exec(label);
+    return match ? parseInt(match[1],10) : 1;
+}
+
+function sizeLabel(size, modelId) {
+    const flat = modelId === "dcut" || modelId === "wcut";
+    return flat
+        ? `${size.name} (${size.code}): ${size.p} x ${size.t} cm (tanpa gusset)`
+        : `${size.name} (${size.code}): ${size.p} x ${size.t} x ${size.l} cm`;
+}
+
+function updateModalPrices() {
+    const model = catalogData.find(item => item.id === currentModalModel);
+    if (!model) return;
+
+    const size = BAG_SIZES.find(item => item.code === el("modalUkuran").value) || BAG_SIZES[1];
+    const gsm = parseInt(el("modalGsm").value,10) || 75;
+
+    el("modalPriceTableBody").innerHTML = model.prices.map(price => {
+        const hpp = hitungHPP({
+            modelId: model.id,
+            panjang: size.p, tinggi: size.t, lebar: size.l,
+            gsm,
+            warnaCetak: parseWarnaCetak(price[0]),
+            jumlahOrder: parseQty(price[1])
+        });
+        return `
+        <tr>
+            <td>${escapeHTML(price[0])}</td>
+            <td>${escapeHTML(price[1])}</td>
+            <td>${escapeHTML(formatRupiah(hpp))}</td>
+        </tr>`;
+    }).join("");
+}
+
 function openModal(modelId) {
     const model = catalogData.find(item => item.id === modelId);
     if (!model) return;
@@ -1042,8 +1160,12 @@ function openModal(modelId) {
 
     el("modalTitle").textContent = model.title;
     el("modalDesc").textContent = model.desc;
-    el("modalUkuran").textContent = model.ukuran;
-    el("modalGsm").textContent = model.gsm;
+    el("modalUkuran").innerHTML = BAG_SIZES.map(size =>
+        `<option value="${size.code}"${size.code === "N" ? " selected" : ""}>${escapeHTML(sizeLabel(size, model.id))}</option>`
+    ).join("");
+    el("modalGsm").innerHTML = BAG_GSM.map(value =>
+        `<option value="${value}"${value === 75 ? " selected" : ""}>${value} GSM</option>`
+    ).join("");
 
     el("modalSwatchesContainer").innerHTML = jinlyColors.map(c => `
         <button type="button"
@@ -1057,13 +1179,7 @@ function openModal(modelId) {
 
     updateModalPreview();
 
-    el("modalPriceTableBody").innerHTML = model.prices.map(price => `
-        <tr>
-            <td>${escapeHTML(price[0])}</td>
-            <td>${escapeHTML(price[1])}</td>
-            <td>${escapeHTML(price[2])}</td>
-        </tr>
-    `).join("");
+    updateModalPrices();
 
     el("productModal").classList.add("active");
     el("productModal").setAttribute("aria-hidden","false");
