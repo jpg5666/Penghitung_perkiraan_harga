@@ -860,8 +860,8 @@ function bagSVG(model, color, id) {
     } else if (thermal) {
         // Bentuk tenda: flap emas tebal di atas, panel depan tinggi, sisi samping segitiga
        shape = `
-            <!-- Sisi Samping Segitiga -->
-            <path d="M203 85 L246 225 L165 252 Z"
+            <!-- Sisi Samping: segitiga sama kaki (AB = AC, alas horizontal) -->
+            <path d="M203 85 L241 252 L165 252 Z"
                 fill="${side}" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
 
 
@@ -1419,6 +1419,39 @@ function renderSVGBlueprint(P,T,L,flap,tali,model,mode,color) {
         if (!isDcut) {
             textSVG(W/2,425,`Panjang tali: ${tali} cm`,"#0284c7","middle",11);
         }
+    } else if (isThermal) {
+        // Tenda: panel depan miring ke belakang sampai puncak, sisi samping segitiga sama kaki
+        // (alas datar selebar gusset, puncak tepat di atas titik tengah alas -> kedua kaki sama panjang)
+        const sd = depth*scale;
+        const x = (W-w-sd)/2;
+        const y = 315;
+        const top = y - panelH;
+        const BL = {x,y};
+        const BR = {x:x+w,y};
+        const BB = {x:x+w+sd,y};
+        const TL = {x:x+sd/2,y:top};
+        const TR = {x:x+w+sd/2,y:top};
+
+        // Sisi samping: segitiga sama kaki
+        polygon([TR,BR,BB],tentSide,"#475569");
+
+        // Panel depan (miring)
+        polygon([BL,BR,TR,TL],frontColor,"#475569");
+        if (!isWhite) {
+            svgElement("path",{
+                d:`M ${BL.x} ${BL.y} L ${BR.x} ${BR.y} L ${TR.x} ${TR.y} L ${TL.x} ${TL.y} Z`,
+                fill:"url(#bagShade)",stroke:"none","pointer-events":"none"
+            });
+        }
+
+        // Flap kuning di sepanjang puncak, mengikuti kemiringan panel depan
+        const shift = (sd/2)*(fh/panelH);
+        polygon([TL,TR,{x:TR.x-shift,y:top+fh},{x:TL.x-shift,y:top+fh}],"#ecd48a","#475569");
+
+        dimension(BL.x,y+34,BR.x,y+34,`${P} cm`,"bottom");
+        if (sd > 1) dimension(BR.x,y+34,BB.x,y+34,`${L} cm`,"bottom","#e11d48");
+        dimension(x-22,y,x-22,top,`${T} cm`,"left");
+        dimension(x-56,top,x-56,top+fh,`Flap ${flap} cm`,"left","#ca8a04");
     } else {
         const x = (W-w-dx)/2;
         const y = 315;

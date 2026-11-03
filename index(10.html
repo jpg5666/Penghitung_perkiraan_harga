@@ -556,7 +556,7 @@ button {
 
     <section class="section-view active" id="view-katalog">
         <div class="page-heading">
-            <h2>Katalog Model Tas & Pilihan Warna Jinly</h2>
+            <h2>Katalog Model Tas & Pilihan Warna</h2>
             <p>Pilih warna kain atau klik card produk untuk melihat tampilan pop-up card besar berisi gambar, pilihan warna, spesifikasi, dan daftar harga.</p>
         </div>
         <div class="catalog-container" id="catalog-grid"></div>
@@ -571,7 +571,7 @@ button {
                     <label for="model">Model Tas</label>
                     <select id="model">
                         <option value="hbpa">HBPA (Box Automatic 3D)</option>
-                        <option value="thermal">Thermal Box / Insulasi</option>
+                        <option value="thermal">Thermal Box (Chagee Style)</option>
                         <option value="hls">HLS (Handle Lipat Samping)</option>
                         <option value="dcut">D-Cut (Plong Flat)</option>
                         <option value="wcut">W-Cut (Model Kresek)</option>
@@ -819,9 +819,13 @@ function bagSVG(model, color, id) {
     const dcut = model.id === "dcut";
     const wcut = model.id === "wcut";
     const hls = model.id === "hls";
-    const front = color.hex;
-    const side = thermal ? "#e2e8f0" : shadeColor(color.hex, -15);
-    const top = shadeColor(color.hex, 12);
+    // Putih tidak diisi warna (kosong) supaya mengikuti latar, termasuk saat dark mode
+    const isWhite = color.hex.toLowerCase() === "#ffffff";
+    const front = isWhite ? "none" : color.hex;
+    const side = isWhite ? "rgba(15,23,42,0.07)" : (thermal ? "#e2e8f0" : shadeColor(color.hex, -15));
+    const top = isWhite ? "rgba(15,23,42,0.03)" : shadeColor(color.hex, 12);
+    const hole = isWhite ? "none" : "#f8fafc";
+    const overlay = isWhite ? "none" : `url(#bg-${id})`;
     let shape = "";
 
     if (dcut) {
@@ -829,12 +833,12 @@ function bagSVG(model, color, id) {
             <path d="M55 70 L245 70 L245 240 L55 240 Z"
                 fill="${front}" stroke="#334155" stroke-width="2"/>
             <ellipse cx="150" cy="88" rx="28" ry="9"
-                fill="#f8fafc" stroke="#334155" stroke-width="2"/>
+                fill="${hole}" stroke="#334155" stroke-width="2"/>
         `;
     } else if (wcut) {
         shape = `
             <!-- Bayangan lantai -->
-            <ellipse cx="150" cy="262" rx="95" ry="9" fill="#cbd5e1" opacity="0.6"/>
+            <ellipse cx="150" cy="262" rx="95" ry="9" fill="#0f172a" opacity="0.08"/>
 
             <!-- Badan tas W-cut (handle + leher + tab) -->
             <path d="M75 255 L75 35 L108 35
@@ -847,7 +851,7 @@ function bagSVG(model, color, id) {
 
             <!-- Lubang/kancing di tab -->
             <circle cx="150" cy="80" r="5"
-                fill="#f1f5f9" stroke="#475569" stroke-width="1.5"/>
+                fill="${hole}" stroke="#475569" stroke-width="1.5"/>
 
             <!-- Jahitan bawah -->
             <path d="M75 249 L225 249"
@@ -865,7 +869,7 @@ function bagSVG(model, color, id) {
             <path d="M50 81 L203 85 L165 252 L29 232 Z"
                 fill="${front}" stroke="#475569" stroke-width="2" stroke-linejoin="round"/>
             <path d="M50 81 L203 85 L165 252 L29 232 Z"
-                fill="url(#bg-${id})" pointer-events="none"/>
+                fill="${overlay}" pointer-events="none"/>
 
            <!-- Flap / Penutup Kuning Berbentuk Persegi Panjang di Atas -->
            <path d="M50 81 L203 85 L196.2 115 L45.8 111 Z"
@@ -875,7 +879,7 @@ function bagSVG(model, color, id) {
     } else if (hls) {
         // Depan: persegi panjang rata. Samping: gusset lipat, bawah dijahit (sempit), atas melebar
         // Belakang: dinding dalam tas terlihat di atas panel depan agar tampak 3D
-        const back = shadeColor(front, -10);
+        const back = isWhite ? "rgba(15,23,42,0.1)" : shadeColor(color.hex, -10);
         shape = `
             <!-- Dinding belakang (terlihat dari bukaan atas) -->
             <path d="M55 70 L85 56 L245 56 L215 70 Z"
@@ -928,7 +932,7 @@ function bagSVG(model, color, id) {
             </defs>
             ${wcut ? "" : `<ellipse cx="150" cy="250" rx="105" ry="12" fill="#0f172a" opacity=".08"/>`}
             ${shape}
-            ${(thermal || wcut || hls) ? "" : `<path d="M55 95 L245 95 L245 240 L55 240 Z"
+            ${(thermal || wcut || hls || isWhite) ? "" : `<path d="M55 95 L245 95 L245 240 L55 240 Z"
                 fill="url(#bg-${id})" pointer-events="none"/>`}
             <text x="150" y="275" text-anchor="middle" fill="#475569"
                 font-size="11">${escapeHTML(color.name)} (${escapeHTML(color.code)})</text>
@@ -1122,10 +1126,22 @@ function validateInput(input) {
     processUpdate();
 }
 
+const modelDefaults = {
+    hbpa:    { panjang:25, tinggi:35, lebar:12 },
+    thermal: { panjang:30, tinggi:35, lebar:15, flap:5 },
+    hls:     { panjang:30, tinggi:40, lebar:7 },
+    dcut:    { panjang:25, tinggi:35, lebar:0 },
+    wcut:    { panjang:30, tinggi:40 }
+};
+
 function handleModelChange() {
     const model = el("model").value;
     const thermal = model === "thermal";
     const dcut = model === "dcut";
+
+    Object.entries(modelDefaults[model] || {}).forEach(([id,value]) => {
+        el(id).value = value;
+    });
 
     el("wrapper-flap").hidden = !thermal;
     el("grid-dim").classList.toggle("thermal-active",thermal);
@@ -1271,81 +1287,123 @@ function renderSVGBlueprint(P,T,L,flap,tali,model,mode,color) {
 
     const W = 560;
     const H = 460;
-    const depth = model === "dcut" ? 0 : L;
-    const totalHeight = T + flap;
+    const INK = "#0f172a";
+    const isThermal = model === "thermal";
+    const isDcut = model === "dcut";
+    const isWcut = model === "wcut";
+    const isHls = model === "hls";
+    const hasHandle = model === "hbpa" || isHls;
+
+    const depth = isDcut ? 0 : L;
+    const totalHeight = T;   // flap bagian dari tinggi T, tidak menambah tinggi tas
     const scale = Math.min(
         260 / P,
-        275 / totalHeight,
+        210 / totalHeight,
         depth > 0 ? 105 / depth : 5,
         5
     );
 
     const w = P*scale;
     const h = T*scale;
+    const fh = Math.min(flap*scale,h);   // flap melebar ke bawah dari tepi atas, maksimal setinggi panel
+    const panelH = h;
     const d = depth*scale*0.65;
-    const fh = flap*scale;
+    const dx = d*0.7;
+    const dy = d*0.35;
 
-    const frontColor = color.hex;
-    const sideColor = shadeColor(color.hex,-17);
-    const sideDx = d*0.7;
-    const sideDy = d*0.35;
-    const isThermal = model === "thermal";
+    // Putih tidak diisi warna (kosong) supaya mengikuti latar, termasuk saat dark mode
+    const isWhite = color.hex.toLowerCase() === "#ffffff";
+    const frontColor = isWhite ? "none" : color.hex;
+    const sideColor = isWhite ? "rgba(15,23,42,0.07)" : shadeColor(color.hex,-17);
+    const topColor = isWhite ? "rgba(15,23,42,0.03)" : shadeColor(color.hex,12);
+    const backColor = isWhite ? "rgba(15,23,42,0.1)" : shadeColor(color.hex,-10);
+    const holeColor = isWhite ? "none" : "#f8fafc";
+    const tentSide = isWhite ? "rgba(15,23,42,0.06)" : "#e2e8f0";
+
+    function drawHandle(x,top,strokeWidth) {
+        const handleW = Math.min(w*0.3,55);
+        const hx1 = x+(w-handleW)/2;
+        const hx2 = hx1+handleW;
+        const handleH = Math.min(60,Math.max(25,tali*scale*0.22));
+        svgElement("path",{
+            d:`M ${hx1} ${top} L ${hx1} ${top-handleH}
+               Q ${(hx1+hx2)/2} ${top-handleH-12} ${hx2} ${top-handleH}
+               L ${hx2} ${top}`,
+            fill:"none",stroke:"#0284c7","stroke-width":strokeWidth,
+            "stroke-linecap":"round","stroke-linejoin":"round"
+        });
+    }
+
+    // Panel depan, bentuknya mengikuti card katalog untuk tiap model
+    function drawFront(x,y) {
+        const top = y - panelH;
+
+        if (isWcut) {
+            // Bentuk W-cut sama dengan card katalog (path diskalakan ke P x T)
+            const mx = px => x + (px-75)/150*w;
+            const my = py => top + (py-35)/220*panelH;
+            svgElement("path",{
+                d:`M ${mx(75)} ${my(255)} L ${mx(75)} ${my(35)} L ${mx(108)} ${my(35)}
+                   C ${mx(108)} ${my(70)} ${mx(112)} ${my(92)} ${mx(132)} ${my(98)}
+                   L ${mx(135)} ${my(78)} Q ${mx(150)} ${my(55)} ${mx(165)} ${my(78)}
+                   L ${mx(168)} ${my(98)}
+                   C ${mx(188)} ${my(92)} ${mx(192)} ${my(70)} ${mx(192)} ${my(35)}
+                   L ${mx(225)} ${my(35)} L ${mx(225)} ${my(255)} Z`,
+                fill:frontColor,stroke:INK,"stroke-width":2,"stroke-linejoin":"round"
+            });
+            svgElement("circle",{
+                cx:mx(150),cy:my(80),r:Math.max(2.5,Math.min(w/150,panelH/220)*5),
+                fill:holeColor,stroke:INK,"stroke-width":1.5
+            });
+            line(x,my(249),x+w,my(249),INK,1.5,"3 2");
+            return;
+        }
+
+        polygon([
+            {x,y},{x:x+w,y},{x:x+w,y:top},{x,y:top}
+        ],frontColor);
+        if (!isWhite) {
+            svgElement("rect",{
+                x,y:top,width:w,height:panelH,
+                fill:"url(#bagShade)",stroke:"none","pointer-events":"none"
+            });
+        }
+
+        if (isThermal) {
+            // Pita kuning (flap) di atas panel depan, sama seperti card katalog
+            svgElement("rect",{
+                x,y:top,width:w,height:fh,
+                fill:"#ecd48a",stroke:"#475569","stroke-width":2
+            });
+        }
+
+        if (isDcut) {
+            svgElement("ellipse",{
+                cx:x+w/2,cy:top+panelH*0.105,
+                rx:w*0.147,ry:Math.max(4,panelH*0.053),
+                fill:holeColor,stroke:INK,"stroke-width":2
+            });
+        }
+
+        if (isHls) {
+            line(x,y-panelH*0.047,x+w,y-panelH*0.047,INK,1.5,"3 2");   // jahitan bawah
+        }
+
+        if (hasHandle) drawHandle(x,top,mode === "2d" ? 3 : 2.5);
+    }
 
     if (mode === "2d") {
         const x = (W-w)/2;
-        const y = 270;
-        
-        const front = [
-            {x,y},
-            {x:x+w,y},
-            {x:x+w,y:y-h},
-            {x,y:y-h}
-        ];
+        const y = 290;
+        const top = y - panelH;
 
-        polygon(front,frontColor);
-        svgElement("rect",{
-            x,y:y-h,width:w,height:h,
-            fill:"url(#bagShade)",stroke:"none","pointer-events":"none"
-        });
-
-        if (isThermal) {
-            svgElement("rect",{
-                x,y:y-h-fh,width:w,height:fh,
-                fill:"#fde68a",stroke:"#ca8a04","stroke-width":2
-            });
-            line(x,y-h,x+w,y-h,"#ca8a04",2,"5 4");
-            dimension(x+w+24,y-h,x+w+24,y-h-fh,
-                `Flap ${flap} cm`,"right","#ca8a04");
-            
-            const handleW = Math.min(w*0.35, 50);
-            const hx1 = x + (w - handleW)/2;
-            const hx2 = hx1 + handleW;
-            const handleH = Math.min(55, Math.max(22, tali*scale*0.2));
-            svgElement("path",{
-                d:`M ${hx1} ${y-h} L ${hx1} ${y-h-handleH}
-                   Q ${(hx1+hx2)/2} ${y-h-handleH-10} ${hx2} ${y-h-handleH}
-                   L ${hx2} ${y-h}`,
-                fill:"none",stroke:"#0284c7","stroke-width":3.5
-            });
-        }
-
-        if (model !== "dcut" && model !== "wcut" && !isThermal) {
-            const handleW = Math.min(w*0.3,55);
-            const hx1 = x+(w-handleW)/2;
-            const hx2 = hx1+handleW;
-            const handleH = Math.min(60,Math.max(25,tali*scale*0.22));
-            svgElement("path",{
-                d:`M ${hx1} ${y-h} L ${hx1} ${y-h-handleH}
-                Q ${(hx1+hx2)/2} ${y-h-handleH-12} ${hx2} ${y-h-handleH}
-                L ${hx2} ${y-h}`,
-                fill:"none",stroke:"#0284c7","stroke-width":3
-            });
-        }
+        drawFront(x,y);
 
         if (L > 0) {
             const fold = Math.min(d/2,w/3);
-            line(x+fold,y-h,x+fold,y,"#e11d48",1.5,"5 4");
-            line(x+w-fold,y-h,x+w-fold,y,"#e11d48",1.5,"5 4");
+            const foldTop = isWcut ? top + (98-35)/220*panelH : top;
+            line(x+fold,foldTop,x+fold,y,"#e11d48",1.5,"5 4");
+            line(x+w-fold,foldTop,x+w-fold,y,"#e11d48",1.5,"5 4");
             dimension(x,y+36,x+w,y+36,`Panjang: ${P} cm`,"bottom");
             dimension(x-20,y,x-20,y-h,`Tinggi: ${T} cm`,"left");
             dimension(x,y+57,x+fold,y+57,`Gusset: ${L} cm`,"bottom","#e11d48");
@@ -1354,90 +1412,63 @@ function renderSVGBlueprint(P,T,L,flap,tali,model,mode,color) {
             dimension(x+w+20,y,x+w+20,y-h,`Tinggi: ${T} cm`,"right");
         }
 
-        if (model !== "dcut") {
+        if (isThermal) {
+            dimension(x+w+44,top,x+w+44,top+fh,`Flap ${flap} cm`,"right","#ca8a04");
+        }
+
+        if (!isDcut) {
             textSVG(W/2,425,`Panjang tali: ${tali} cm`,"#0284c7","middle",11);
         }
     } else {
-        const x = (W-w+sideDx)/2;
+        const x = (W-w-dx)/2;
         const y = 315;
+        const top = y - panelH;
 
-        const front = [
-            {x,y},
-            {x:x+w,y},
-            {x:x+w,y:y-h},
-            {x,y:y-h}
-        ];
+        const F1 = {x:x+w,y};
+        const F2 = {x:x+w,y:top};
+        const F3 = {x,y:top};
+        const B1 = {x:x+w+dx,y:y-dy};
+        const B2 = {x:x+w+dx,y:top-dy};
+        const B3 = {x:x+dx,y:top-dy};
 
         if (depth > 0) {
-            const backLeft = {x:x-sideDx,y:y-sideDy};
-            const backLeftTop = {x:x-sideDx,y:y-h-sideDy};
-            const backRight = {x:x+w-sideDx,y:y-sideDy};
-            const backRightTop = {x:x+w-sideDx,y:y-h-sideDy};
-
-            polygon([
-                front[0],backLeft,backLeftTop,front[3]
-            ],sideColor);
-            polygon([
-                front[0],front[1],backRight,backLeft
-            ],shadeColor(color.hex,-9));
-            line(backLeft.x,backLeft.y,backRight.x,backRight.y,"#64748b",1.3,"4 4");
-            line(backRight.x,backRight.y,backRightTop.x,backRightTop.y,"#64748b",1.3,"4 4");
-            line(backRightTop.x,backRightTop.y,front[2].x,front[2].y,"#64748b",1.3,"4 4");
+            if (isHls) {
+                // Dinding belakang terlihat dari bukaan atas + gusset yang menyempit ke bawah (dijahit)
+                polygon([F3,B3,B2,F2],backColor,"#475569");
+                const Bb = {x:x+w+dx*0.22,y:y-dy*0.22};
+                polygon([F2,B2,Bb,F1],sideColor,"#475569");
+                line((F2.x+B2.x)/2,(F2.y+B2.y)/2,(F1.x+Bb.x)/2,(F1.y+Bb.y)/2,
+                    "#475569",1,"");
+            } else if (isThermal) {
+                // Sisi samping segitiga seperti tenda
+                polygon([F2,F1,B1],tentSide,"#475569");
+            } else if (!isDcut && !isWcut) {
+                // HBPA: box penuh dengan tutup atas dan sisi samping
+                polygon([F3,F2,B2,B3],topColor);
+                polygon([F2,F1,B1,B2],sideColor);
+            }
         }
 
-        polygon(front,frontColor);
-        svgElement("rect",{
-            x,y:y-h,width:w,height:h,
-            fill:"url(#bagShade)",stroke:"none","pointer-events":"none"
-        });
+        drawFront(x,y);
 
+        const gussetHere = depth > 0 && !isDcut && !isWcut;
+        const heightX = gussetHere ? x-22 : x+w+22;
+        const heightSide = gussetHere ? "left" : "right";
+
+        dimension(x,y+34,x+w,y+34,`${P} cm`,"bottom");
+        dimension(heightX,y,heightX,y-h,`${T} cm`,heightSide);
         if (isThermal) {
-            // Flap atas lurus mendatar (persegi panjang kuning)
-            svgElement("polygon",{
-                points:`${x},${y-h} ${x+w},${y-h} ${x+w-sideDx},${y-h-sideDy-(fh*0.6)} ${x-sideDx},${y-h-sideDy-(fh*0.6)}`,
-                fill:"#fde68a",stroke:"#ca8a04","stroke-width":2
-            });
-            line(x,y-h,x+w,y-h,"#ca8a04",2,"5 4");
-            dimension(x+w+25,y-h,x+w+25-sideDx,y-h-sideDy-(fh*0.6),
-                `+${flap} cm`,"right","#ca8a04");
-            
-            const handleW = Math.min(w*0.35, 50);
-            const hx1 = x + (w - handleW)/2;
-            const hx2 = hx1 + handleW;
-            const handleH = Math.min(55, Math.max(22, tali*scale*0.2));
-            svgElement("path",{
-                d:`M ${hx1} ${y-h} L ${hx1} ${y-h-handleH}
-                   Q ${(hx1+hx2)/2} ${y-h-handleH-10} ${hx2} ${y-h-handleH}
-                   L ${hx2} ${y-h}`,
-                fill:"none",stroke:"#0284c7","stroke-width":3.5
-            });
+            dimension(heightX-34,top,heightX-34,top+fh,`Flap ${flap} cm`,heightSide,"#ca8a04");
         }
-
-        if (model !== "thermal" && model !== "dcut" && model !== "wcut") {
-            const handleW = Math.min(w*0.3,55);
-            const hx1 = x+(w-handleW)/2;
-            const hx2 = hx1+handleW;
-            const handleH = Math.min(60,Math.max(25,tali*scale*0.22));
-            svgElement("path",{
-                d:`M ${hx1} ${y-h} L ${hx1} ${y-h-handleH}
-                Q ${(hx1+hx2)/2} ${y-h-handleH-12} ${hx2} ${y-h-handleH}
-                L ${hx2} ${y-h}`,
-                fill:"none",stroke:"#0284c7","stroke-width":2.5
-            });
-        }
-
-        dimension(x,y+22,x+w,y+22,`${P} cm`,"bottom");
-        dimension(x+w+22,y,x+w+22,y-h,`${T} cm`,"right");
-
-        if (depth > 0) {
-            dimension(x-sideDx-17,y-sideDy,x-17,y,
-                `${L} cm`,"left","#e11d48");
+        if (gussetHere) {
+            dimension(x+w+4,y+16,x+w+dx+4,y-dy+16,`${L} cm`,"bottom","#e11d48");
         }
     }
 
+    const info = catalogData.find(item => item.id === model);
     textSVG(W/2,24,mode === "3d" ? "SKETSA 3D - REFERENSI VISUAL" : "BLUEPRINT 2D - TAMPAK DEPAN",
         "#334155","middle",12);
-    textSVG(W/2,444,`${model.toUpperCase()} | ${color.name} (${color.code})`,
+    textSVG(W/2,444,`${info ? info.title : model} | ${color.name} (${color.code})`,
         "#64748b","middle",11);
 }
 
